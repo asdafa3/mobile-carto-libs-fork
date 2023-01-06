@@ -7,7 +7,7 @@
 #ifndef _CARTO_MBVTBUILDER_MBVTBUILDER_H_
 #define _CARTO_MBVTBUILDER_MBVTBUILDER_H_
 
-#include "mapsforge-to-mvt/Types.h"
+#include "mapsforgevtbuilder/Types.h"
 
 #include <cstdint>
 #include <variant>
