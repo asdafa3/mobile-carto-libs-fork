@@ -22,7 +22,6 @@
 #include "mapsforge-reader/MapFile.h"
 #include "mapsforge-reader/ReadBuffer.h"
 #include "mapsforge-reader/MFConstants.h"
-#include "components/Exceptions.h"
 #include "mapsforge-reader/QueryParameters.h"
 #include "mapsforge-reader/Deserializer.h"
 #include "utils/TileUtils.h"
@@ -36,6 +35,7 @@
 #include <vector>
 #include <climits>
 #include <math.h>
+#include <stdexcept>
 
 
 namespace carto {
@@ -52,8 +52,10 @@ namespace carto {
                 _tagFilter = tagFilter;
                 // Read in header data for a map file. Header contains information about where tiles are stored in the file.
                 _map_file_header.readHeader(readBuffer, _fileSize);
-            } catch (const carto::FileException &ex) {
-                Log::Errorf("Could not extract information from map file. ", ex.what());
+            } catch (const /*carto::FileException*/ std::runtime_error &ex) {
+                // TODO: Throw exception
+                _logger->write(Logger::Severity::ERROR, tfm::format("%s::Could not extract information from map file. %s", _tag, ex.what()));
+                // Log::Errorf("Could not extract information from map file. ", ex.what());
             }
         }
 
@@ -126,8 +128,10 @@ namespace carto {
                     // check if block pointer is in valid range
                     uint64_t currentBlockPointer = currentBlockIndexEntry & MFConstants::_BITMASK_INDEX_OFFSET;
                     if (currentBlockPointer < 1 || currentBlockPointer > subFileParams.getSubFileSize()) {
-                        Log::Warnf("MapFile::processBlocks: Invalid current block pointer: %d", currentBlockPointer);
-                        Log::Warnf("MapFile::processBlocks: Sub file size: %d", subFileParams.getSubFileSize());
+                        _logger->write(Logger::Severity::WARNING, tfm::format("%s::Invalid current block pointer: %d", _tag, currentBlockPointer));
+                        _logger->write(Logger::Severity::WARNING, tfm::format("%s::Sub file size: %d", _tag, subFileParams.getSubFileSize()));
+                        //Log::Warnf("MapFile::processBlocks: Invalid current block pointer: %d", currentBlockPointer);
+                        //Log::Warnf("MapFile::processBlocks: Sub file size: %d", subFileParams.getSubFileSize());
                         return std::shared_ptr<MapQueryResult>();
                     }
 
@@ -138,11 +142,12 @@ namespace carto {
                         nextBlockPointer = subFileParams.getSubFileSize();
                     } else {
                         // read the position of the next block in the sub file
-                        nextBlockPointer =
-                                readBlockIndex(subFileParams, blockNumber + 1) & MFConstants::_BITMASK_INDEX_OFFSET;
+                        nextBlockPointer = readBlockIndex(subFileParams, blockNumber + 1) & MFConstants::_BITMASK_INDEX_OFFSET;
                         if (nextBlockPointer > subFileParams.getSubFileSize()) {
-                            Log::Warnf("MapFile::processBlocks: Invalid next block pointer: %d", nextBlockPointer);
-                            Log::Warnf("MapFile::processBlocks: Sub file size: %d", subFileParams.getSubFileSize());
+                            _logger->write(Logger::Severity::WARNING, tfm::format("%s::Invalid next block pointer: %d", _tag, nextBlockPointer));
+                            _logger->write(Logger::Severity::WARNING, tfm::format("%s::Sub file size: %d", _tag, subFileParams.getSubFileSize()));
+                            // Log::Warnf("MapFile::processBlocks: Invalid next block pointer: %d", nextBlockPointer);
+                            // Log::Warnf("MapFile::processBlocks: Sub file size: %d", subFileParams.getSubFileSize());
                             return std::shared_ptr<MapQueryResult>();
                         }
                     }
@@ -150,18 +155,20 @@ namespace carto {
                     // calculate the amount of bytes for the current block
                     uint32_t currentBlockSize = (uint32_t)(nextBlockPointer - currentBlockPointer);
                     if (currentBlockSize < 0) {
-                        Log::Warnf("MapFile::processBlocks: Current block size must not be negative: %d",
-                                   currentBlockSize);
+                        _logger->write(Logger::Severity::WARNING, tfm::format("%s::Current block size must not be negative: %d", _tag, currentBlockSize));
+                        // Log::Warnf("MapFile::processBlocks: Current block size must not be negative: %d", currentBlockSize);
                         return std::shared_ptr<MapQueryResult>();
                     } else if (currentBlockSize == 0) {
                         // the current block is empty, continue with next block
                         continue;
                     } else if (currentBlockSize > 10000000) {
                         // current block is too large, continue
-                        Log::Warnf("MapFile::processBlocks: Current block is too large: %d", currentBlockSize);
+                        _logger->write(Logger::Severity::WARNING, tfm::format("%s::Current block is too large: %d", _tag, currentBlockSize));
+                        // Log::Warnf("MapFile::processBlocks: Current block is too large: %d", currentBlockSize);
                         continue;
                     } else if (currentBlockPointer + currentBlockSize > _fileSize) {
-                        Log::Warnf("MapFile::processBlocks: Current block exceeds file size: %d", currentBlockSize);
+                        _logger->write(Logger::Severity::WARNING, tfm::format("%s::Current block exceeds file size: %d", _tag, currentBlockSize));
+                        // Log::Warnf("MapFile::processBlocks: Current block exceeds file size: %d", currentBlockSize);
                         return std::shared_ptr<MapQueryResult>();
                     }
 
@@ -170,7 +177,8 @@ namespace carto {
                     // fill the buffer with the data of the current block
                     if (!readBuffer.readFromFile(subFileParams.getStartAddress() + currentBlockPointer,
                                                  currentBlockSize)) {
-                        Log::Warnf("MapFile::processBlocks: Reading block has failed: %d", currentBlockSize);
+                        _logger->write(Logger::Severity::WARNING, tfm::format("%s::Reading block has failed: %d", _tag, currentBlockSize));
+                        // Log::Warnf("MapFile::processBlocks: Reading block has failed: %d", currentBlockSize);
                         return std::shared_ptr<MapQueryResult>();
                     }
                     _mutex.unlock();
@@ -182,12 +190,10 @@ namespace carto {
                             0
                     );
 
-                    MapBounds projectedMapBounds = TileUtils::CalculateMapTileBounds(boundaryTileTopLeft.getFlipped(),
-                                                                                     _projection);
+                    MapBounds projectedMapBounds = TileUtils::CalculateMapTileBounds(boundaryTileTopLeft.getFlipped(), _projection);
                     // MapBounds min is bottom left (south-west), MapBounds max is top right (north-east).
                     // We need top-left position for further calculations. Coordinates are in WGS84.
-                    MapPos projectedMin = _projection->toWgs84(
-                            projectedMapBounds.getMin());
+                    MapPos projectedMin = _projection->toWgs84(projectedMapBounds.getMin());
                     MapPos projectedMax = _projection->toWgs84(projectedMapBounds.getMax());
                     MapPos topLeftPosition(projectedMin.getX(), projectedMax.getY());
 
@@ -195,12 +201,12 @@ namespace carto {
                         TileDataBundle bundle{};
 
                         // Read the data of a single block based on the selector used
-                        if (processSingleBlock(queryParams, subFileParams, mapBounds, topLeftPosition, selector,
-                                               &bundle, readBuffer)) {
+                        if (processSingleBlock(queryParams, subFileParams, mapBounds, topLeftPosition, selector, &bundle, readBuffer)) {
                             mapQueryResult.add(bundle);
                         }
                     } catch (const GenericException &ex) {
-                        Log::Errorf("MapFile::processBlocks: Error processing block! %s", ex.what());
+                        _logger->write(Logger::Severity::ERROR, tfm::format("%s::Error processing block! %s", _tag, ex.what()));
+                        throw std::runtime_error(tfm::format("%s::Error processing block", _tag));
                     }
                 }
             }
@@ -224,7 +230,8 @@ namespace carto {
                     std::string waySignature = readBuffer.read_utf8(MFConstants::_SIGNATURE_LENGTH_WAY);
                     // check if way signature starts with token
                     if (!waySignature.rfind("---WayStart", 0)) {
-                        Log::Warnf("MapFile::processWays: Invalid way signature: %s", waySignature);
+                        _logger->write(Logger::Severity::WARNING, tfm::format("%s::Invalid way signature: %s", _tag, waySignature));
+                        // Log::Warnf("MapFile::processWays: Invalid way signature: %s", waySignature);
                         return false;
                     }
                 }
@@ -232,7 +239,8 @@ namespace carto {
                 // get way size (VBE-U)
                 uint64_t wayDataSize = readBuffer.read_var_ulong();
                 if (wayDataSize < 0) {
-                    Log::Warnf("MapFile::processWays: Invalid way data size: %d", wayDataSize);
+                    _logger->write(Logger::Severity::WARNING, tfm::format("%s::Invalid way data size: %d", _tag, wayDataSize));
+                    // Log::Warnf("MapFile::processWays: Invalid way data size: %d", wayDataSize);
                     return false;
                 }
 
@@ -255,8 +263,7 @@ namespace carto {
 
                 // Bit 1-4 encode the layer
                 // FIXME: be careful here!
-                auto layer = (int8_t)(
-                        (uint8_t)(specialByte & MFConstants::_WAY_LAYER_BITMASK) >> MFConstants::_WAY_LAYER_SHIFT);
+                auto layer = (int8_t)((uint8_t)(specialByte & MFConstants::_WAY_LAYER_BITMASK) >> MFConstants::_WAY_LAYER_SHIFT);
                 // Bit 5-8 encode the number of tag IDs
                 auto numberOfTags = (int8_t)(specialByte & MFConstants::_WAY_NUMBER_OF_TAGS_BITMASK);
 
@@ -275,8 +282,7 @@ namespace carto {
                 bool featureRef = (featureByte & MFConstants::_WAY_FEATURE_REF) != 0;
                 bool featureLabelPosition = (featureByte & MFConstants::_WAY_FEATURE_LABEL_POSITION) != 0;
                 bool featureWayDataBlocksByte = (featureByte & MFConstants::_WAY_FEATURE_DATA_BLOCKS_BYTE) != 0;
-                bool featureWayDoubleDeltaEncoding =
-                        (featureByte & MFConstants::_WAY_FEATURE_DOUBLE_DELTA_ENCODING) != 0;
+                bool featureWayDoubleDeltaEncoding = (featureByte & MFConstants::_WAY_FEATURE_DOUBLE_DELTA_ENCODING) != 0;
 
                 // check if way has a name
                 if (featureName) {
@@ -304,7 +310,8 @@ namespace carto {
                 }
 
                 if (numberWayDataBlocks < 1) {
-                    Log::Warnf("MapFile::processWays: Invalid number of way data blocks: %d", numberWayDataBlocks);
+                    _logger->write(Logger::Severity::WARNING, tfm::format("%s::Invalid number of way data blocks: %d", _tag, numberWayDataBlocks));
+                    // Log::Warnf("MapFile::processWays: Invalid number of way data blocks: %d", numberWayDataBlocks);
                     return false;
                 }
 
@@ -331,8 +338,7 @@ namespace carto {
 
                             // apply tag filter. ways must contain one of the tags.
                             if (_tagFilter) {
-                                bool containsTag = std::find_first_of(decodedTags.begin(), decodedTags.end(), _tagFilter->begin(),
-                                                                                    _tagFilter->end()) != decodedTags.end();
+                                bool containsTag = std::find_first_of(decodedTags.begin(), decodedTags.end(), _tagFilter->begin(), _tagFilter->end()) != decodedTags.end();
 
                                 // If no tag is contained, dont add the feature
                                 if (!containsTag) {
@@ -356,8 +362,8 @@ namespace carto {
             wayNodes->reserve(numberWayCoordinateBlocks);
 
             if (numberWayCoordinateBlocks < 1 || numberWayCoordinateBlocks > SHRT_MAX) {
-                Log::Warnf("MapFile::processWayDataBlock: Invalid number of way data blocks: %d",
-                           numberWayCoordinateBlocks);
+                _logger->write(Logger::Severity::WARNING, tfm::format("%s::Invalid number of way coordinate blocks: %d", _tag, numberWayCoordinateBlocks));
+                // Log::Warnf("MapFile::processWayDataBlock: Invalid number of way data blocks: %d", numberWayCoordinateBlocks);
                 return false;
             }
 
@@ -367,7 +373,8 @@ namespace carto {
                 uint64_t numberWayNodes = readBuffer.read_var_ulong();
 
                 if (numberWayNodes < 2 || numberWayNodes > SHRT_MAX) {
-                    Log::Warnf("MapFile::processWayDataBlock: Invalid number of way nodes: %d", numberWayNodes);
+                    _logger->write(Logger::Severity::WARNING, tfm::format("%s::Invalid number of way nodes: %d", _tag, numberWayNodes));
+                    //Log::Warnf("MapFile::processWayDataBlock: Invalid number of way nodes: %d", numberWayNodes);
                     return false;
                 }
 
@@ -391,11 +398,9 @@ namespace carto {
         void MapFile::decodeWayNodesDoubleDelta(std::vector <MapPos> *waySegment, int numberOfWayNodes, const MapPos &tileOrigin,
                                                 ReadBuffer &readBuffer) {
             // get first way node latitude offset (VBE-S)
-            double wayNodeLatitude =
-                    tileOrigin.getY() + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
+            double wayNodeLatitude = tileOrigin.getY() + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
             // get first way node longitude offset (VBE-S)
-            double wayNodeLongitude =
-                    tileOrigin.getX() + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
+            double wayNodeLongitude = tileOrigin.getX() + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
 
             // store first way node
             waySegment->push_back({ wayNodeLongitude, wayNodeLatitude });
@@ -433,11 +438,9 @@ namespace carto {
         void MapFile::decodeWayNodesSingleDelta(std::vector <MapPos> *waySegment, int numberOfWayNodes, const MapPos &tileOrigin,
                                                 ReadBuffer &readBuffer) {
             // get first way node latitude offset (VBE-S)
-            double wayNodeLatitude =
-                    tileOrigin.getY() + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
+            double wayNodeLatitude = tileOrigin.getY() + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
             // get first way node longitude offset (VBE-S)
-            double wayNodeLongitude =
-                    tileOrigin.getX() + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
+            double wayNodeLongitude = tileOrigin.getX() + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
 
             // store first way node
             waySegment->push_back({ wayNodeLongitude, wayNodeLatitude });
@@ -479,7 +482,8 @@ namespace carto {
                     // check poi signature
                     std::string poiSignature = readBuffer.read_utf8(MFConstants::_SIGNATURE_LENGTH_POI);
                     if (!poiSignature.rfind("***POIStart", 0)) {
-                        Log::Warnf("MapFile::processPois: Invalid POI signature: %s", poiSignature);
+                        _logger->write(Logger::Severity::WARNING, tfm::format("%s::Invalid POI signature: %s", _tag, poiSignature));
+                        // Log::Warnf("MapFile::processPois: Invalid POI signature: %s", poiSignature);
                         return false;
                     }
                 }
@@ -493,8 +497,7 @@ namespace carto {
                 int8_t specialByte = readBuffer.read_byte();
 
                 // Bit 1-4 represent layer
-                int8_t layer = (int8_t)(
-                        (uint8_t)(specialByte & MFConstants::_POI_LAYER_BITMASK) >> MFConstants::_POI_LAYER_SHIFT);
+                int8_t layer = (int8_t)((uint8_t)(specialByte & MFConstants::_POI_LAYER_BITMASK) >> MFConstants::_POI_LAYER_SHIFT);
                 // Bit 5-8 represent number of tag IDs
                 int8_t numberOfTags = (int8_t)(specialByte & MFConstants::_POI_NUMBER_OF_TAGS_BITMASK);
 
@@ -544,7 +547,8 @@ namespace carto {
             if (_map_file_header.getMapFileInfo()->getDebugInfo()) {
                 std::string signatureBlock = readBuffer.read_utf8(MFConstants::_SIGNATURE_LENGTH_BLOCK);
                 if (!signatureBlock.rfind("###TileStart", 0)) {
-                    Log::Warnf("MapFile::processBlockSignature: Invalid block signature: %s", signatureBlock);
+                    _logger->write(Logger::Severity::WARNING, tfm::format("%s::Invalid block signature: %s", _tag, signatureBlock));
+                    // Log::Warnf("MapFile::processBlockSignature: Invalid block signature: %s", signatureBlock);
                     return false;
                 }
             }
@@ -572,8 +576,10 @@ namespace carto {
 
         uint64_t MapFile::readBlockIndex(const SubFileParameters &subFileParams, long blockNumber) {
             if (blockNumber >= subFileParams.getNumberOfBlocks()) {
-                Log::Errorf("MapFile::readBlockIndex: Invalid block number: %d", blockNumber);
-                throw GenericException("Invalid block number");
+                _logger->write(Logger::Severity::ERROR, tfm::format("%s::Invalid block number: %d", _tag, blockNumber));
+                // Log::Errorf("MapFile::readBlockIndex: Invalid block number: %d", blockNumber);
+                //throw GenericException("Invalid block number");
+                throw std::runtime_error(tfm::format("%s::Invalid block number", _tag));
             }
 
             // Calculate index block the query block falls in
@@ -592,7 +598,8 @@ namespace carto {
             ReadBuffer readBuffer(_filePath);
             // extract the data of the index block from the map file
             if (!readBuffer.readFromFile(indexBlockPosition, indexBlockSize)) {
-                Log::Errorf("MapFile::readBlockIndex: Could not read index block with size: %d", indexBlockSize);
+                _logger->write(Logger::Severity::ERROR, tfm::format("%s::Could not read index block with size: %d", _tag, indexBlockSize));
+                // Log::Errorf("MapFile::readBlockIndex: Could not read index block with size: %d", indexBlockSize);
                 return -1;
             }
             _mutex.unlock();
@@ -627,19 +634,21 @@ namespace carto {
             // get the relative offset to the first stored way in block
             uint64_t firstWayOffset = readBuffer.read_var_ulong();
             if (firstWayOffset < 0) {
-                Log::Warnf("MapFile::processBlock: Invalid first way offset: %d", firstWayOffset);
+                _logger->write(Logger::Severity::WARNING, tfm::format("%s::Invalid first way offset: %d", _tag, firstWayOffset));
+                // Log::Warnf("MapFile::processBlock: Invalid first way offset: %d", firstWayOffset);
                 return false;
             }
 
             firstWayOffset += readBuffer.getBufferPosition();
             if (firstWayOffset > readBuffer.getBufferSize()) {
-                Log::Warnf("MapFile::processBlock: Invalid first way offset: %d", firstWayOffset);
+                _logger->write(Logger::Severity::WARNING, tfm::format("%s::Invalid first way offset: %d", _tag, firstWayOffset));
+                // Log::Warnf("MapFile::processBlock: Invalid first way offset: %d", firstWayOffset);
                 return false;
             }
 
             bool filterRequired = queryParams.getQueryZoomLevel() > subFileParams.getBaseZoomLevel();
 
-            std::vector <POI> pois;
+            std::vector<POI> pois;
             pois.reserve(numPoisOnQueryZoomLevel);
             // read all pois for the current block
             if (!processPois(tileOrigin, numPoisOnQueryZoomLevel, mapBounds, filterRequired, &pois, readBuffer)) {
@@ -652,8 +661,8 @@ namespace carto {
                 ways = std::vector<Way>();
             } else {
                 if (readBuffer.getBufferPosition() > firstWayOffset) {
-                    Log::Warnf("MapFile::processSingleBlock: Invalid buffer position: %d",
-                               readBuffer.getBufferPosition());
+                    _logger->write(Logger::Severity::WARNING, tfm::format("%s::Invalid buffer position: %d", _tag, readBuffer.getBufferPosition()));
+                    //Log::Warnf("MapFile::processSingleBlock: Invalid buffer position: %d", readBuffer.getBufferPosition());
                     return false;
                 }
 

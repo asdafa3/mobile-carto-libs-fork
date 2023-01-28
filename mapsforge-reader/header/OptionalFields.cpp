@@ -17,9 +17,11 @@
 
 #include "OptionalFields.h"
 #include "mapsforge-reader/utils/LatLongUtils.h"
-#include "components/Exceptions.h"
+
 #include "mapsforge-reader/MFConstants.h"
 #include "mapsforge-reader/header/MapFileInfoBuilder.h"
+
+#include <stdexcept>
 
 namespace carto {
 
@@ -66,8 +68,10 @@ namespace carto {
         if (_has_start_zoom_level) {
             uint8_t mapStartZoomLevel = readBuffer -> read_byte();
             if (mapStartZoomLevel < 0 || mapStartZoomLevel > MFConstants::_START_ZOOM_LEVEL_MAX) {
-                Log::Errorf("OptionalFields::readMapStartZoomLevel: invalid start zoom level: %d", mapStartZoomLevel);
-                throw GenericException("OptionalFields::readMapStartZoomLevel: invalid start zoom level");
+                _logger->write(Logger::Severity::ERROR, tfm::format("%s::invalid start zoom level: %d", _tag, mapStartZoomLevel));
+                //Log::Errorf("OptionalFields::readMapStartZoomLevel: invalid start zoom level: %d", mapStartZoomLevel);
+                //throw GenericException("OptionalFields::readMapStartZoomLevel: invalid start zoom level");
+                throw std::runtime_error(tfm::format("%s::Iinvalid start zoom level", _tag));
             }
 
             _start_zoom_level = mapStartZoomLevel;
