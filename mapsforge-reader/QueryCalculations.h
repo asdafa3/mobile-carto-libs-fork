@@ -17,7 +17,7 @@
 #ifndef CARTO_MOBILE_SDK_QUERYCALCULATIONS_H
 #define CARTO_MOBILE_SDK_QUERYCALCULATIONS_H
 
-#include "core/MapTile.h"
+#include <mapnikvt/Types.h>
 
 namespace carto {
 
@@ -26,6 +26,8 @@ namespace carto {
      */
     class QueryCalculations {
     public:
+
+        using MapTile = carto::mvt::MapTile;
 
         /**
          * Calculate tile bitmask for tiles inside a zoom interval that are

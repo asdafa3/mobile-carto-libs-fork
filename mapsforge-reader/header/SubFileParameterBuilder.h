@@ -16,7 +16,7 @@
 #ifndef CARTO_MOBILE_SDK_SUBFILEPARAMETERBUILDER_H
 #define CARTO_MOBILE_SDK_SUBFILEPARAMETERBUILDER_H
 
-#include "core/MapBounds.h"
+#include <mapnikvt/Types.h>
 
 namespace carto {
 

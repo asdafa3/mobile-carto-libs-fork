@@ -24,6 +24,7 @@
 #include "mapnikvt/Logger.h"
 
 #include <memory>
+#include <tinyformat.h>
 
 namespace carto {
     /**
@@ -33,7 +34,9 @@ namespace carto {
      */
     class MapFileHeader {
     public:
-        MapFileHeader(std::shared_ptr<Logger> logger);
+        using Logger = carto::mvt::Logger;
+
+        MapFileHeader(std::shared_ptr<mvt::Logger> logger);
         ~MapFileHeader();
 
         uint8_t getQueryZoomLevel(uint8_t zoom_level);
@@ -71,7 +74,9 @@ namespace carto {
          */
         std::vector<SubFileParameters> _sub_file_parameters;
 
-        const std::shared_ptr<Logger> _logger;
+        const std::string _tag = "MapFileHeader";
+
+        const std::shared_ptr<mvt::Logger> _logger;
     };
 }
 

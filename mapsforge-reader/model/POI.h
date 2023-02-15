@@ -17,9 +17,9 @@
 #ifndef CARTO_MOBILE_SDK_POI_H
 #define CARTO_MOBILE_SDK_POI_H
 
-#include "core/MapPos.h"
 #include "mapsforge-reader/model/Tag.h"
 #include <vector>
+#include <mapnikvt/Types.h>
 
 namespace carto {
     /**
@@ -27,6 +27,8 @@ namespace carto {
      */
     class POI {
     public:
+        using MapPos = carto::mvt::MapPos;
+
         POI(int8_t layer, std::vector<Tag> tags, MapPos position);
 
         int8_t getLayer() const;

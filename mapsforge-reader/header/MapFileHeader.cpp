@@ -17,14 +17,15 @@
 #include "MapFileHeader.h"
 #include "mapsforge-reader/header/RequiredFields.h"
 #include "mapsforge-reader/header/OptionalFields.h"
-#include "components/Exceptions.h"
+
 #include "mapsforge-reader/MFConstants.h"
 
+#include <stdexcept>
 #include <climits>
 
 namespace carto {
 
-    MapFileHeader::MapFileHeader(std::shared_ptr<Logger> logger) : _logger(std::move(logger)) { }
+    MapFileHeader::MapFileHeader(std::shared_ptr<mvt::Logger> logger) : _logger(std::move(logger)) { }
 
     MapFileHeader::~MapFileHeader() { }
 
@@ -72,9 +73,10 @@ namespace carto {
     void MapFileHeader::readSubFileParameters(const std::shared_ptr<ReadBuffer> &read_buffer, uint64_t file_size, MapFileInfoBuilder &mapFileInfoBuilder) {
         uint8_t numberOfSubFiles = read_buffer -> read_byte();
         if (numberOfSubFiles < 1) {
-            _logger->write(Logger::Severity::ERROR, "Unsupported filter mode");
+            _logger->write(Logger::Severity::ERROR, tfm::format("%s::Invalid number of sub files: {}", _tag, numberOfSubFiles));
             //Log::Errorf("MapFileHeader::readSubFileParameters: Invalid number of sub files: %d", numberOfSubFiles);
-            throw GenericException("MapFileHeader::readSubFileParameters: Invalid number of sub files");
+            //throw GenericException("MapFileHeader::readSubFileParameters: Invalid number of sub files");
+            throw std::runtime_error(tfm::format("%s::Invalid number of sub files!", _tag));
         }
         mapFileInfoBuilder._number_of_sub_files = numberOfSubFiles;
 
@@ -91,38 +93,48 @@ namespace carto {
             uint8_t baseZoomLevel = read_buffer -> read_byte();
 
             if (baseZoomLevel < 0 || baseZoomLevel > MFConstants::_BASE_ZOOM_LEVEL_MAX) {
-                Log::Errorf("MapFileHeader::readSubFileParameters: Invalid base zoom level: %d", baseZoomLevel);
-                throw GenericException("MapFileHeader::readSubFileParameters: Invalid base zoom level");
+                _logger->write(Logger::Severity::ERROR, tfm::format("%s::Invalid base zoom level: %d", _tag, baseZoomLevel));
+                // Log::Errorf("MapFileHeader::readSubFileParameters: Invalid base zoom level: %d", baseZoomLevel);
+                // throw GenericException("MapFileHeader::readSubFileParameters: Invalid base zoom level");
+                throw std::runtime_error(tfm::format("%s::Invalid base zoom level", _tag));
             }
             builder._base_zoom_level = baseZoomLevel;
 
             // read min zoom level
             uint8_t zoomLevelMin = read_buffer -> read_byte();
             if (zoomLevelMin < 0 || zoomLevelMin > 22) {
-                Log::Errorf("MapFileHeader::readSubFileParameters: Invalid min zoom level: %d", zoomLevelMin);
-                throw GenericException("MapFileHeader::readSubFileParameters: Invalid min zoom level");
+                _logger->write(Logger::Severity::ERROR, tfm::format("%s::Invalid min zoom level: %d", _tag, zoomLevelMin));
+                //Log::Errorf("MapFileHeader::readSubFileParameters: Invalid min zoom level: %d", zoomLevelMin);
+                //throw GenericException("MapFileHeader::readSubFileParameters: Invalid min zoom level");
+                throw std::runtime_error(tfm::format("%s::Invalid min zoom level", _tag));
             }
             builder._zoom_level_min = zoomLevelMin;
 
             // read max zoom level
             uint8_t zoomLevelMax = read_buffer -> read_byte();
             if (zoomLevelMax < 0 || zoomLevelMax > 22) {
-                Log::Errorf("MapFileHeader::readSubFileParameters: Invalid max zoom level: %d", zoomLevelMax);
-                throw GenericException("MapFileHeader::readSubFileParameters: Invalid min zoom level");
+                _logger->write(Logger::Severity::ERROR, tfm::format("%s::Invalid max zoom level: %d", _tag, zoomLevelMax));
+                //Log::Errorf("MapFileHeader::readSubFileParameters: Invalid max zoom level: %d", zoomLevelMax);
+                //throw GenericException("MapFileHeader::readSubFileParameters: Invalid max zoom level");
+                throw std::runtime_error(tfm::format("%s::Invalid max zoom level", _tag));
             }
             builder._zoom_level_max = zoomLevelMax;
 
             if (zoomLevelMin > zoomLevelMax) {
-                Log::Errorf("MapFileHeader::readSubFileParameters: Invalid zoom range: %d to %d", zoomLevelMax);
-                throw GenericException("MapFileHeader::readSubFileParameters: Invalid zoom range");
+                _logger->write(Logger::Severity::ERROR, tfm::format("%s::Invalid zoom range: %d to %d", _tag, zoomLevelMin, zoomLevelMax));
+                //Log::Errorf("MapFileHeader::readSubFileParameters: Invalid zoom range: %d to %d", zoomLevelMax);
+                //throw GenericException("MapFileHeader::readSubFileParameters: Invalid zoom range");
+                throw std::runtime_error(tfm::format("%s::Invalid zoom range", _tag));
             }
 
 
             // read start address of sub file
             uint64_t startAddress = read_buffer -> read_long();
             if (startAddress < MFConstants::_HEADER_SIZE_MIN || startAddress >= file_size) {
-                Log::Errorf("MapFileHeader::readSubFileParameters: Invalid start address: %d", startAddress);
-                throw GenericException("MapFileHeader::readSubFileParameters: Invalid start address");
+                _logger->write(Logger::Severity::ERROR, tfm::format("%s::Invalid start address: %d", _tag, startAddress));
+                //Log::Errorf("MapFileHeader::readSubFileParameters: Invalid start address: %d", startAddress);
+                //throw GenericException("MapFileHeader::readSubFileParameters: Invalid start address");
+                throw std::runtime_error(tfm::format("%s::Invalid start address", _tag));
             }
             builder._start_address = startAddress;
 
@@ -137,8 +149,10 @@ namespace carto {
 
             uint64_t subFileSize = read_buffer -> read_long();
             if (subFileSize < 1) {
-                Log::Errorf("MapFileHeader::readSubFileParameters: Invalid sub file size: %d", subFileSize);
-                throw GenericException("MapFileHeader::readSubFileParameters:  Invalid sub file siz");
+                _logger->write(Logger::Severity::ERROR, tfm::format("%s::Invalid sub file size: %d", _tag, subFileSize));
+                //Log::Errorf("MapFileHeader::readSubFileParameters: Invalid sub file size: %d", subFileSize);
+                //throw GenericException("MapFileHeader::readSubFileParameters:  Invalid sub file size");
+                throw std::runtime_error(tfm::format("%s::Invalid subfile size", _tag));
             }
             builder._sub_file_size = subFileSize;
 

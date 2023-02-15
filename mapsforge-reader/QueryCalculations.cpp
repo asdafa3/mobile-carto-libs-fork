@@ -26,8 +26,8 @@ namespace carto {
         }
 
         // calculate the XY numbers of the second level sub-tile
-        uint64_t subTileX = (uint32_t)tile.getX() >> (zoomLevelDifference - 2);
-        uint64_t subTileY = (uint32_t)tile.getY() >> (zoomLevelDifference - 2);
+        uint64_t subTileX = (uint32_t)tile.x >> (zoomLevelDifference - 2);
+        uint64_t subTileY = (uint32_t)tile.y >> (zoomLevelDifference - 2);
 
         // calculate the XY numbers of the parent tile
         uint64_t parentTileX = subTileX >> 1;
@@ -46,13 +46,13 @@ namespace carto {
     }
 
     uint16_t QueryCalculations::getFirstLevelTileBitmask(const MapTile &tile) {
-        if (tile.getX() % 2 == 0 && tile.getY() % 2 == 0) {
+        if (tile.x % 2 == 0 && tile.y % 2 == 0) {
             // upper left quadrant
             return 0xcc00;
-        } else if (tile.getX() % 2 == 1 && tile.getY() % 2 == 0) {
+        } else if (tile.x % 2 == 1 && tile.y % 2 == 0) {
             // upper right quadrant
             return 0x3300;
-        } else if (tile.getX() % 2 == 0 && tile.getY() % 2 == 1) {
+        } else if (tile.x % 2 == 0 && tile.y % 2 == 1) {
             // lower left quadrant
             return 0xcc;
         } else {

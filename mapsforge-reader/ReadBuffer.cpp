@@ -19,10 +19,10 @@
 
 #include "ReadBuffer.h"
 #include "Deserializer.h"
-#include "components/Exceptions.h"
 #include "mapsforge-reader/MFConstants.h"
 
 #include <iostream>
+#include <stdexcept>
 #include <fstream>
 
 namespace carto {
@@ -30,12 +30,13 @@ namespace carto {
     ReadBuffer::ReadBuffer(const std::string &path_to_map_file, std::shared_ptr<Logger> logger) :
     _data(),
     _tag_ids(),
-    _stream(path_to_map_file.c_str(), std::ios::in | std::ios::binary)
+    _stream(path_to_map_file.c_str(), std::ios::in | std::ios::binary),
     _logger(std::move(logger))
     {
         if(_stream.fail()) {
-            Log::Errorf("ReadBuffer::Error opening map file at path '%s'", path_to_map_file);
-            throw GenericException("Error opening map file");
+            _logger->write(Logger::Severity::ERROR, tfm::format("%s::Error opening map file at path '%s'", _tag, path_to_map_file));
+            // Log::Errorf("ReadBuffer::Error opening map file at path '%s'", path_to_map_file);
+            throw std::runtime_error(tfm::format("%s::Error opening map file.", _tag));
         }
         long begin, end;
         begin = _stream.tellg();
@@ -54,7 +55,8 @@ namespace carto {
         _stream.seekg(0);
 
         if (!_stream.read((char*) &bytes[0], length)) {
-            Log::Error("ReadBuffer::Error reading from map file");
+            _logger->write(Logger::Severity::ERROR, tfm::format("%s::Error reading from map file", _tag));
+            // Log::Error("ReadBuffer::Error reading from map file");
             return false;
         }
 
@@ -70,7 +72,8 @@ namespace carto {
         _stream.seekg(offset);
 
         if (!_stream.read((char*) &bytes[0], length)) {
-            Log::Error("ReadBuffer::Error reading from map file");
+            _logger->write(Logger::Severity::ERROR, tfm::format("%s::Error reading from map file", _tag));
+            // Log::Error("ReadBuffer::Error reading from map file");
             return false;
         }
 
@@ -190,7 +193,8 @@ namespace carto {
         for (uint8_t tagIndex = numberOfTags; tagIndex != 0; --tagIndex) {
             uint64_t tagId = read_var_ulong();
             if (tagId < 0 || tagId >= maxTag) {
-                Log::Warnf("ReadBuffer::readTags: Invalid tag ID: %d", tagId);
+                _logger->write(Logger::Severity::ERROR, tfm::format("%s::Invalid tag ID: %d", _tag, tagId));
+                // Log::Warnf("ReadBuffer::readTags: Invalid tag ID: %d", tagId);
                 return false;
             }
             _tag_ids.push_back(tagId);

@@ -37,14 +37,22 @@
 #include <math.h>
 #include <stdexcept>
 
+/*
+TODO:
+1.) refactor class intern usages of MapPos, MapBounds and MapTile
+2.) refactor usages from extern classes
+3.) refactor projection
+*/
+
 
 namespace carto {
     namespace mapsforge {
 
         MapFile::MapFile(const std::string &path_to_map_file, const std::shared_ptr <std::vector<Tag>> &tagFilter, std::shared_ptr<Logger> logger) :
                 _filePath(path_to_map_file),
+                _tileTransformer(),
                 _projection(std::make_shared<EPSG3857>()),
-                _map_file_header()
+                _map_file_header(std::move(logger)),
                 _logger(std::move(logger)) {
             try {
                 std::shared_ptr <ReadBuffer> readBuffer = std::make_shared<ReadBuffer>(path_to_map_file);
@@ -61,7 +69,7 @@ namespace carto {
 
         MapFile::~MapFile() {}
 
-        const MapBounds &MapFile::getMapBounds() const {
+        const mvt::MapBounds &MapFile::getMapBounds() const {
             return _map_file_header.getMapFileInfo()->getBoundingBox();
         }
 
@@ -73,19 +81,25 @@ namespace carto {
             return readMapData(tile, Selector::ALL);
         }
 
+        void MapFile::setTileTransformer(const std::shared_ptr<vt::TileTransformer>& tileTransformer) {
+            std::lock_guard<std::mutex> lock(_mutex);
+            _tileTransformer = tileTransformer;
+        }
+
         bool MapFile::containsTile(const MapTile &tile) {
             // projection is EPSG3857
-            MapBounds bboxTile = TileUtils::CalculateMapTileBounds(tile, _projection);
-            bboxTile.setMin({bboxTile.getMin().getX(), -bboxTile.getMin().getY()});
-            bboxTile.setMax({bboxTile.getMax().getX(), -bboxTile.getMax().getY()});
+            MapBounds bboxTile = _tileTransformer->calculateTileBBox(tile);
+            bboxTile.min = MapPos(bboxTile.min(0), -bboxTile.min(1));
+            bboxTile.max = MapPos(bboxTile.max(0), -bboxTile.max(1));
             MapBounds bboxMapFile = _map_file_header.getMapFileInfo()->getBoundingBox();
 
             // check if tile bounding box is inside or interecting with the map file bbox
-            bool intersects = bboxTile.intersects(bboxMapFile);
+            MapBounds bboxIntersection = bboxTile.intersect(bboxMapFile);
+            bool intersects = !bboxIntersection.empty();
 
             // check if the .map file supports the zoom level of the query tile
-            bool zoomCondLow = tile.getZoom() >= _map_file_header.getMapFileInfo()->getMinZoomLevel();
-            bool zoomCondHigh = tile.getZoom() <= _map_file_header.getMapFileInfo()->getMaxZoomLevel();
+            bool zoomCondLow = tile.zoom >= _map_file_header.getMapFileInfo()->getMinZoomLevel();
+            bool zoomCondHigh = tile.zoom <= _map_file_header.getMapFileInfo()->getMaxZoomLevel();
             bool zoomInRange = zoomCondLow && zoomCondHigh;
 
             return intersects && zoomInRange;
@@ -93,7 +107,7 @@ namespace carto {
 
         std::shared_ptr <MapQueryResult> MapFile::readMapData(const MapTile &tile, Selector selector) {
             QueryParameters queryParams{};
-            queryParams.setQueryZoomLevel(_map_file_header.getQueryZoomLevel(tile.getZoom()));
+            queryParams.setQueryZoomLevel(_map_file_header.getQueryZoomLevel(tile.zoom));
 
             SubFileParameters subFileParameter = _map_file_header.getSubFileParameters(queryParams.getQueryZoomLevel());
             // calculate tiles covered by the query tile on the base zoom level
@@ -101,10 +115,12 @@ namespace carto {
             // calculate corresponding blocks in .map file from the previosly calculated tiles
             queryParams.calculateBlocks(subFileParameter);
 
+            MapTile flippedTile(tile.zoom, tile.x, -tile.y);
             // calculate tile origin for decoding coordinates later
-            MapBounds projectedMapBounds = TileUtils::CalculateMapTileBounds(tile.getFlipped(), _projection);
-            MapPos projectedMin = _projection->toWgs84(projectedMapBounds.getMin());
-            MapPos projectedMax = _projection->toWgs84(projectedMapBounds.getMax());
+            MapBounds projectedMapBounds = _tileTransformer->calculateTileBBox(flippedTile);
+            // MapBounds projectedMapBounds = TileUtils::CalculateMapTileBounds(tile.getFlipped(), _projection);
+            MapPos projectedMin = _projection->toWgs84(projectedMapBounds.min);
+            MapPos projectedMax = _projection->toWgs84(projectedMapBounds.max);
             MapBounds latLonBounds(projectedMin, projectedMax);
 
             return processBlocks(queryParams, subFileParameter, latLonBounds, selector);
@@ -173,10 +189,9 @@ namespace carto {
                     }
 
                     _mutex.lock();
-                    ReadBuffer readBuffer(_filePath);
+                    ReadBuffer readBuffer(_filePath, _logger);
                     // fill the buffer with the data of the current block
-                    if (!readBuffer.readFromFile(subFileParams.getStartAddress() + currentBlockPointer,
-                                                 currentBlockSize)) {
+                    if (!readBuffer.readFromFile(subFileParams.getStartAddress() + currentBlockPointer, currentBlockSize)) {
                         _logger->write(Logger::Severity::WARNING, tfm::format("%s::Reading block has failed: %d", _tag, currentBlockSize));
                         // Log::Warnf("MapFile::processBlocks: Reading block has failed: %d", currentBlockSize);
                         return std::shared_ptr<MapQueryResult>();
@@ -184,18 +199,18 @@ namespace carto {
                     _mutex.unlock();
 
                     MapTile boundaryTileTopLeft(
-                            subFileParams.getBoundaryTileLeft() + col,
-                            subFileParams.getBoundaryTileTop() + row,
-                            subFileParams.getBaseZoomLevel(),
-                            0
+                        subFileParams.getBaseZoomLevel(),
+                        subFileParams.getBoundaryTileLeft() + col,
+                        subFileParams.getBoundaryTileTop() + row
                     );
 
-                    MapBounds projectedMapBounds = TileUtils::CalculateMapTileBounds(boundaryTileTopLeft.getFlipped(), _projection);
+                    MapTile flippedTile(boundaryTileTopLeft.zoom, boundaryTileTopLeft.x, -boundaryTileTopLeft.y);
+                    MapBounds projectedMapBounds = _tileTransformer->calculateTileBBox(flippedTile);
                     // MapBounds min is bottom left (south-west), MapBounds max is top right (north-east).
                     // We need top-left position for further calculations. Coordinates are in WGS84.
-                    MapPos projectedMin = _projection->toWgs84(projectedMapBounds.getMin());
-                    MapPos projectedMax = _projection->toWgs84(projectedMapBounds.getMax());
-                    MapPos topLeftPosition(projectedMin.getX(), projectedMax.getY());
+                    MapPos projectedMin = _projection->toWgs84(projectedMapBounds.min);
+                    MapPos projectedMax = _projection->toWgs84(projectedMapBounds.max);
+                    MapPos topLeftPosition(projectedMin(1), projectedMax(2));
 
                     try {
                         TileDataBundle bundle{};
@@ -204,7 +219,7 @@ namespace carto {
                         if (processSingleBlock(queryParams, subFileParams, mapBounds, topLeftPosition, selector, &bundle, readBuffer)) {
                             mapQueryResult.add(bundle);
                         }
-                    } catch (const GenericException &ex) {
+                    } catch (const std::runtime_error &ex) {
                         _logger->write(Logger::Severity::ERROR, tfm::format("%s::Error processing block! %s", _tag, ex.what()));
                         throw std::runtime_error(tfm::format("%s::Error processing block", _tag));
                     }
@@ -330,10 +345,8 @@ namespace carto {
 
                             // decode way label if existing
                             if (!labelPosition.empty()) {
-                                labelLatLon.setX(
-                                        wayNodes[0][0].getX() + LatLongUtils::microdegreesToDegrees(labelPosition[1]));
-                                labelLatLon.setY(
-                                        wayNodes[0][0].getY() + LatLongUtils::microdegreesToDegrees(labelPosition[0]));
+                                labelLatLon(1) = wayNodes[0][0](1) + LatLongUtils::microdegreesToDegrees(labelPosition[1]);
+                                labelLatLon(2) = wayNodes[0][0](2) + LatLongUtils::microdegreesToDegrees(labelPosition[0]);
                             }
 
                             // apply tag filter. ways must contain one of the tags.
@@ -395,12 +408,11 @@ namespace carto {
             return true;
         }
 
-        void MapFile::decodeWayNodesDoubleDelta(std::vector <MapPos> *waySegment, int numberOfWayNodes, const MapPos &tileOrigin,
-                                                ReadBuffer &readBuffer) {
+        void MapFile::decodeWayNodesDoubleDelta(std::vector <MapPos> *waySegment, int numberOfWayNodes, const MapPos &tileOrigin, ReadBuffer &readBuffer) {
             // get first way node latitude offset (VBE-S)
-            double wayNodeLatitude = tileOrigin.getY() + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
+            double wayNodeLatitude = tileOrigin(2) + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
             // get first way node longitude offset (VBE-S)
-            double wayNodeLongitude = tileOrigin.getX() + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
+            double wayNodeLongitude = tileOrigin(1) + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
 
             // store first way node
             waySegment->push_back({ wayNodeLongitude, wayNodeLatitude });
@@ -435,12 +447,11 @@ namespace carto {
             }
         }
 
-        void MapFile::decodeWayNodesSingleDelta(std::vector <MapPos> *waySegment, int numberOfWayNodes, const MapPos &tileOrigin,
-                                                ReadBuffer &readBuffer) {
+        void MapFile::decodeWayNodesSingleDelta(std::vector <MapPos> *waySegment, int numberOfWayNodes, const MapPos &tileOrigin, ReadBuffer &readBuffer) {
             // get first way node latitude offset (VBE-S)
-            double wayNodeLatitude = tileOrigin.getY() + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
+            double wayNodeLatitude = tileOrigin(2) + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
             // get first way node longitude offset (VBE-S)
-            double wayNodeLongitude = tileOrigin.getX() + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
+            double wayNodeLongitude = tileOrigin(1) + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
 
             // store first way node
             waySegment->push_back({ wayNodeLongitude, wayNodeLatitude });
@@ -473,8 +484,7 @@ namespace carto {
             return labelPosition;
         }
 
-        bool MapFile::processPois(const MapPos &tileOrigin, uint32_t numberOfPois, const MapBounds &mapBounds,
-                                  bool filterRequired, std::vector <POI> *pois, ReadBuffer &readBuffer) {
+        bool MapFile::processPois(const MapPos &tileOrigin, uint32_t numberOfPois, const MapBounds &mapBounds, bool filterRequired, std::vector <POI> *pois, ReadBuffer &readBuffer) {
             std::vector <Tag> poiTags = _map_file_header.getMapFileInfo()->getPoiTags();
 
             for (uint32_t elementCounter = numberOfPois; elementCounter != 0; --elementCounter) {
@@ -489,9 +499,9 @@ namespace carto {
                 }
 
                 // POI latitude as (VBE-S)
-                double lat = tileOrigin.getY() + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
+                double lat = tileOrigin(2) + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
                 // POI longitude as (VBE-S)
-                double lon = tileOrigin.getX() + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
+                double lon = tileOrigin(1) + LatLongUtils::microdegreesToDegrees(readBuffer.read_var_long());
 
                 // get special byte which encodes flags
                 int8_t specialByte = readBuffer.read_byte();
@@ -535,7 +545,7 @@ namespace carto {
                 MapPos position(lon, lat);
                 // depending on the zoom level configuration the poi can lie outside
                 // the tile requested, we filter them out here
-                bool contained = mapBounds.contains(position);
+                bool contained = mapBounds.inside(position);
                 if (!filterRequired || contained) {
                     pois->push_back(POI(layer, decodedTags, position));
                 }
@@ -595,7 +605,7 @@ namespace carto {
             uint64_t indexBlockSize = std::min((uint64_t) MFConstants::_SIZE_OF_INDEX_BLOCK, (uint64_t) remainingIndexSize);
 
             _mutex.lock();
-            ReadBuffer readBuffer(_filePath);
+            ReadBuffer readBuffer(_filePath, _logger);
             // extract the data of the index block from the map file
             if (!readBuffer.readFromFile(indexBlockPosition, indexBlockSize)) {
                 _logger->write(Logger::Severity::ERROR, tfm::format("%s::Could not read index block with size: %d", _tag, indexBlockSize));

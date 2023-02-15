@@ -1,0 +1,4 @@
+- nicht statische Member... in Required fields
+- Projektionen
+- intersect->empty validieren
+- move semantics von logger

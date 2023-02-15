@@ -17,8 +17,8 @@
 #ifndef CARTO_MOBILE_SDK_QUERYPARAMETERS_H
 #define CARTO_MOBILE_SDK_QUERYPARAMETERS_H
 
-#include "core/MapTile.h"
 #include "mapsforge-reader/header/SubFileParameters.h"
+#include <mapnikvt/Types.h>
 
 namespace carto {
     /**
@@ -26,6 +26,9 @@ namespace carto {
      */
     class QueryParameters {
     public:
+
+        using MapTile = carto::mvt::MapTile;
+        
         QueryParameters();
 
         /**

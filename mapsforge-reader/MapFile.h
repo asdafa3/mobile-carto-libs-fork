@@ -24,7 +24,6 @@
 
 #include "ReadBuffer.h"
 #include "header/MapFileHeader.h"
-#include "core/MapTile.h"
 #include "mapsforge-reader/model/MapQueryResult.h"
 #include "mapsforge-reader/QueryParameters.h"
 #include "projections/Projection.h"
@@ -32,7 +31,9 @@
 #include <mutex>
 #include <memory>
 
-#include "mapnikvt/Logger.h"
+#include <mapnikvt/Logger.h>
+#include <mapnikvt/Types.h>
+#include <vt/TileTransformer.h>
 
 namespace carto {
     namespace mapsforge {
@@ -57,12 +58,19 @@ namespace carto {
          */
         class MapFile {
         public:
+
+            using MapBounds = carto::mvt::MapBounds;
+            using MapTile = carto::mvt::MapTile;
+            using MapPos = carto::mvt::MapPos;
+
+            using Logger = carto::mvt::Logger;
+
             /**
              * Construct a MapFile instance for a specific .map file specified by it path.
              * @param path_to_map_file The path of the map file in the app bundle.
              * @param tagFilter A Json based filter to filter Ways by their tags.
              */
-            MapFile(const std::string &path_to_map_file, const std::shared_ptr<std::vector<Tag>> &tagFilter, std::shared_ptr<Logger> logger);
+            MapFile(const std::string &path_to_map_file, const std::shared_ptr<std::vector<Tag>> &tagFilter, std::shared_ptr<mvt::Logger> logger);
 
             virtual ~MapFile();
 
@@ -95,6 +103,8 @@ namespace carto {
              * @return
              */
             bool containsTile(const MapTile &tile);
+
+            void setTileTransformer(const std::shared_ptr<vt::TileTransformer>& tileTransformer);
 
         private:
             /**
@@ -300,13 +310,19 @@ namespace carto {
             MapFileHeader _map_file_header;
 
             /**
+             * @brief TileTransformer to transform tiles based on a projection method.
+             * 
+             */
+            const std::shared_ptr<vt::TileTransformer> _tileTransformer;
+
+            /**
              * Mutex object to block thread when reading from a .map file.
              */
             mutable std::mutex _mutex;
 
-            const std::string _tag;
+            const std::string _tag = "MapFile";
 
-            const std::shared_ptr<Logger> _logger;
+            const std::shared_ptr<mvt::Logger> _logger;
         };
     }
 }

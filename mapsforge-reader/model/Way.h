@@ -16,9 +16,8 @@
 #ifndef CARTO_MOBILE_SDK_WAY_H
 #define CARTO_MOBILE_SDK_WAY_H
 
-#include "core/MapPos.h"
 #include "mapsforge-reader/model/Tag.h"
-
+#include <mapnikvt/Types.h>>
 #include <vector>
 
 namespace carto {
@@ -28,6 +27,8 @@ namespace carto {
      */
     class Way {
     public:
+        using MapPos = carto::mvt::MapPos;
+
         Way(int8_t layer, const std::vector<Tag>& tags, const std::vector<std::vector<MapPos>>& coords, MapPos labelPosition);
 
         MapPos getLabelPosition() const;

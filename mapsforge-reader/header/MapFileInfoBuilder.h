@@ -17,8 +17,8 @@
 #ifndef CARTO_MOBILE_SDK_MAPFILEINFOBUILDER_H
 #define CARTO_MOBILE_SDK_MAPFILEINFOBUILDER_H
 
-#include "core/MapBounds.h"
-#include "core/MapPos.h"
+#include <mapnikvt/Types.h>
+
 #include "mapsforge-reader/model/Tag.h"
 #include "mapsforge-reader/header/OptionalFields.h"
 #include <string>

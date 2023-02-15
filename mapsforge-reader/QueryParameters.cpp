@@ -21,26 +21,26 @@ namespace carto {
     QueryParameters::QueryParameters() {}
 
     void QueryParameters::calculateTiles(const MapTile &tile, const SubFileParameters &subFileParameters) {
-        if (tile.getZoom() < subFileParameters.getBaseZoomLevel()) {
+        if (tile.zoom < subFileParameters.getBaseZoomLevel()) {
             // calculate the XY numbers of the upper left and lower right sub-tiles
-            int zoomLevelDiff = subFileParameters.getBaseZoomLevel() - tile.getZoom();
-            _from_base_tile_x = tile.getX() << zoomLevelDiff;
-            _from_base_tile_y = tile.getY() << zoomLevelDiff;
+            int zoomLevelDiff = subFileParameters.getBaseZoomLevel() - tile.zoom;
+            _from_base_tile_x = tile.x << zoomLevelDiff;
+            _from_base_tile_y = tile.y << zoomLevelDiff;
             _to_base_tile_x = _from_base_tile_x + (1 << zoomLevelDiff) - 1;
             _to_base_tile_y = _from_base_tile_y + (1 << zoomLevelDiff) - 1;
             _use_tile_bitmask = false;
-        } else if (tile.getZoom() > subFileParameters.getBaseZoomLevel()) {
+        } else if (tile.zoom > subFileParameters.getBaseZoomLevel()) {
             // calculate the XY numbers of the parent base tile
-            int zoomLevelDiff = tile.getZoom() - subFileParameters.getBaseZoomLevel();
-            _from_base_tile_x = (uint32_t)tile.getX() >> zoomLevelDiff;
-            _from_base_tile_y = (uint32_t)tile.getY() >> zoomLevelDiff;
+            int zoomLevelDiff = tile.zoom - subFileParameters.getBaseZoomLevel();
+            _from_base_tile_x = (uint32_t)tile.x >> zoomLevelDiff;
+            _from_base_tile_y = (uint32_t)tile.y >> zoomLevelDiff;
             _to_base_tile_x = _from_base_tile_x;
             _to_base_tile_y = _from_base_tile_y;
             _use_tile_bitmask = true;
             _query_tile_bitmask = QueryCalculations::calculateTileBitmask(tile, zoomLevelDiff);
         } else {
-            _from_base_tile_x = tile.getX();
-            _from_base_tile_y = tile.getY();
+            _from_base_tile_x = tile.x;
+            _from_base_tile_y = tile.y;
             _to_base_tile_x = _from_base_tile_x;
             _to_base_tile_y = _from_base_tile_y;
             _use_tile_bitmask = false;

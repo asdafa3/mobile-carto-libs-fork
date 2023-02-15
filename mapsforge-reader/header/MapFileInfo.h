@@ -18,8 +18,7 @@
 #ifndef CARTO_MOBILE_SDK_MAPFILEINFO_H
 #define CARTO_MOBILE_SDK_MAPFILEINFO_H
 
-#include "core/MapBounds.h"
-#include "core/MapPos.h"
+#include <mapnikvt/Types.h>
 #include "mapsforge-reader/model/Tag.h"
 #include "mapsforge-reader/header/MapFileInfoBuilder.h"
 
@@ -34,6 +33,9 @@ namespace carto {
      */
     class MapFileInfo {
     public:
+
+        using MapBounds = carto::mvt::MapBounds;
+
         MapFileInfo(const MapFileInfoBuilder &map_file_info_builder);
 
         ~MapFileInfo();

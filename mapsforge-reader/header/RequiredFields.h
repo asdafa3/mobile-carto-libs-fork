@@ -19,12 +19,11 @@
 
 #include "mapsforge-reader/ReadBuffer.h"
 #include "MapFileInfo.h"
-
-#include "core/MapBounds.h"
 #include "mapsforge-reader/model/Tag.h"
 #include "utils/GeomUtils.h"
 
-#include "mapnikvt/Logger.h"
+#include <mapnikvt/Logger.h>
+#include <mapnikvt/Types.h>
 #include <tinyformat.h>
 #include <string>
 
@@ -37,6 +36,8 @@ namespace carto {
      */
     class RequiredFields final {
     public:
+        using Logger = carto::mvt::Logger;
+
         /**
          * Reads the bbox information contained in the header segment of the .map file. BBox is in EPSG:3857.
          *
@@ -116,9 +117,11 @@ namespace carto {
          */
         static void readTilePixelSize(const std::shared_ptr<ReadBuffer> &readBuffer, MapFileInfoBuilder &mapFileInfoBuilder);
     private:
-        RequiredFields();
+        RequiredFields(std::shared_ptr<Logger> logger) : _tag("RequiredFields"), _logger(std::move(logger)) {}
 
         const std::string _tag;
+
+        const std::shared_ptr<Logger> _logger;
     };
 }
 

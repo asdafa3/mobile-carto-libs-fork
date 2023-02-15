@@ -37,7 +37,7 @@ namespace carto {
 
     void OptionalFields::readOptionalFields(const std::shared_ptr<ReadBuffer> &readBuffer, MapFileInfoBuilder &mapFileInfoBuilder) {
         uint8_t flags = readBuffer -> read_byte();
-        mapFileInfoBuilder._optionalFields = std::unique_ptr<OptionalFields>(new OptionalFields(flags));
+        mapFileInfoBuilder._optionalFields = std::unique_ptr<OptionalFields>(new OptionalFields(flags, _logger));
         mapFileInfoBuilder._optionalFields -> readOptionalFields(readBuffer);
     }
 
@@ -71,7 +71,7 @@ namespace carto {
                 _logger->write(Logger::Severity::ERROR, tfm::format("%s::invalid start zoom level: %d", _tag, mapStartZoomLevel));
                 //Log::Errorf("OptionalFields::readMapStartZoomLevel: invalid start zoom level: %d", mapStartZoomLevel);
                 //throw GenericException("OptionalFields::readMapStartZoomLevel: invalid start zoom level");
-                throw std::runtime_error(tfm::format("%s::Iinvalid start zoom level", _tag));
+                throw std::runtime_error(tfm::format("%s::Invalid start zoom level", _tag));
             }
 
             _start_zoom_level = mapStartZoomLevel;
@@ -96,7 +96,7 @@ namespace carto {
         return _lang_preference;
     }
 
-    const MapPos & OptionalFields::getStartPosition() const {
+    const mvt::MapPos & OptionalFields::getStartPosition() const {
         return _start_position;
     }
 

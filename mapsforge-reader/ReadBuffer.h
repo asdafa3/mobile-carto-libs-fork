@@ -28,6 +28,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <tinyformat.h>
 
 #include "mapnikvt/Logger.h"
 
@@ -38,6 +39,8 @@ namespace carto {
      */
     class ReadBuffer {
     public:
+
+        using Logger = carto::mvt::Logger;
     
         ReadBuffer(const std::string &path_to_map_file, std::shared_ptr<Logger> logger);
         virtual ~ReadBuffer();
@@ -210,6 +213,8 @@ namespace carto {
          * The most recent read data.
          */
         std::vector<char> _data;
+
+        const std::string _tag = "ReadBuffer";
 
         const std::shared_ptr<Logger> _logger;
     };

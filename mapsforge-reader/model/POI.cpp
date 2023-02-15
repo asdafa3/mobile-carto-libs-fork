@@ -27,7 +27,7 @@ namespace carto {
         return _layer;
     }
 
-    MapPos POI::getPosition() const {
+    mvt::MapPos POI::getPosition() const {
         return _position;
     }
 

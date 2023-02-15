@@ -21,9 +21,8 @@
 #ifndef CARTO_MOBILE_SDK_LATLONGUTILS_H
 #define CARTO_MOBILE_SDK_LATLONGUTILS_H
 
-#include "core/MapPos.h"
-#include "core/MapBounds.h"
 
+#include "mapnikvt/Types.h"
 #include <vector>
 
 namespace carto {
@@ -32,7 +31,12 @@ namespace carto {
      * Utility class to perform operations on latitudes and longitudes.
      */
     class LatLongUtils {
-    public:
+    public: 
+
+        using MapBounds = carto::mvt::MapBounds;
+        using MapTile = carto::mvt::MapTile;
+        using MapPos = carto::mvt::MapPos;
+
         /**
          * Converts lat lon in microdegrees to degrees.
          *

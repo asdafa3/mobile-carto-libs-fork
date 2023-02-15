@@ -19,9 +19,11 @@
 #define CARTO_MOBILE_SDK_OPTIONALFIELDS_H
 
 #include "mapsforge-reader/ReadBuffer.h"
-#include "core/MapPos.h"
+
+#include <mapnikvt/Types.h>
 #include "mapnikvt/Logger.h"
 
+#include <tinyformat.h>
 #include <memory>
 
 namespace carto {
@@ -33,6 +35,9 @@ namespace carto {
      */
     class OptionalFields {
     public:
+
+        using MapPos = carto::mvt::MapPos;
+        using Logger = carto::mvt::Logger;
 
         /**
          * Constructs a class to read and parse optional fields contained in the header segment of a .map file.
@@ -107,6 +112,8 @@ namespace carto {
         bool _has_language_preference;
         bool _has_start_zoom_level;
         bool _has_start_position;
+
+        const std::string _tag = "OptionalFields";
 
         const std::shared_ptr<Logger> _logger;
     };

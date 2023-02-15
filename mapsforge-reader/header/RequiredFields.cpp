@@ -15,10 +15,11 @@
  */
 
 #include "RequiredFields.h"
-#include "components/Exceptions.h"
 #include "mapsforge-reader/utils/LatLongUtils.h"
 #include "mapsforge-reader/MFConstants.h"
 #include "projections/EPSG3857.h"
+
+#include <stdexcept>
 
 namespace carto {
 
