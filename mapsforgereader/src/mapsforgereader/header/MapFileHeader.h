@@ -17,12 +17,12 @@
 #ifndef CARTO_MOBILE_SDK_MAPFILEHEADER_H
 #define CARTO_MOBILE_SDK_MAPFILEHEADER_H
 
-#include <mapsforgereader/ReadBuffer.h>
 #include "SubFileParameters.h"
+#include <mapsforgereader/ReadBuffer.h>
 #include <mapsforgereader/header/MapFileInfo.h>
-#include <climits>
 #include "mapnikvt/Logger.h"
 
+#include <climits>
 #include <memory>
 #include <tinyformat.h>
 
