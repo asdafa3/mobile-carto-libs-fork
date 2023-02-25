@@ -111,8 +111,8 @@ namespace carto {
             // calculate tile origin for decoding coordinates later
             MapBounds projectedMapBounds = _tileTransformer->calculateTileBBox(flippedTile);
             // MapBounds projectedMapBounds = TileUtils::CalculateMapTileBounds(tile.getFlipped(), _projection);
-            MapPos projectedMin = _projection->toLatLon(projectedMapBounds.min);
-            MapPos projectedMax = _projection->toLatLon(projectedMapBounds.max);
+            MapPos projectedMin = _projection->toWgs84(projectedMapBounds.min);
+            MapPos projectedMax = _projection->toWgs84(projectedMapBounds.max);
             MapBounds latLonBounds(projectedMin, projectedMax);
 
             return processBlocks(queryParams, subFileParameter, latLonBounds, selector);
@@ -200,8 +200,8 @@ namespace carto {
                     MapBounds projectedMapBounds = _tileTransformer->calculateTileBBox(flippedTile);
                     // MapBounds min is bottom left (south-west), MapBounds max is top right (north-east).
                     // We need top-left position for further calculations. Coordinates are in WGS84.
-                    MapPos projectedMin = _projection->toLatLon(projectedMapBounds.min);
-                    MapPos projectedMax = _projection->toLatLon(projectedMapBounds.max);
+                    MapPos projectedMin = _projection->toWgs84(projectedMapBounds.min);
+                    MapPos projectedMax = _projection->toWgs84(projectedMapBounds.max);
                     // MapPos projectedMin = _projection->toWgs84(projectedMapBounds.min);
                     // MapPos projectedMax = _projection->toWgs84(projectedMapBounds.max);
                     MapPos topLeftPosition(projectedMin(1), projectedMax(2));
