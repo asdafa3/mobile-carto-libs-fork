@@ -120,11 +120,11 @@ namespace carto {
          */
         static void readTilePixelSize(const std::shared_ptr<ReadBuffer> &readBuffer, MapFileInfoBuilder &mapFileInfoBuilder);
     private:
-        RequiredFields(std::shared_ptr<Logger> logger) : _tag("RequiredFields"), _logger(std::move(logger)) {}
+        RequiredFields(std::shared_ptr<mvt::Logger> logger) : _tag("RequiredFields"), _logger(std::move(logger)) {}
 
         const std::string _tag;
 
-        const std::shared_ptr<Logger> _logger;
+        const std::shared_ptr<mvt::Logger> _logger;
     };
 }
 

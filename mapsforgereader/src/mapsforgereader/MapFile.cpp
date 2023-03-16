@@ -40,7 +40,7 @@
 namespace carto {
     namespace mapsforge {
 
-        MapFile::MapFile(const std::string &path_to_map_file, const std::shared_ptr <std::vector<Tag>> &tagFilter, std::shared_ptr<Logger> logger) :
+        MapFile::MapFile(const std::string &path_to_map_file, const std::shared_ptr <std::vector<Tag>> &tagFilter, std::shared_ptr<mvt::Logger> logger) :
                 _filePath(path_to_map_file),
                 _tileTransformer(),
                 _projection(std::make_shared<EPSG3857>()),

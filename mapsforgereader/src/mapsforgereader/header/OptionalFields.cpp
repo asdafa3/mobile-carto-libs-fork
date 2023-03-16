@@ -25,7 +25,7 @@
 
 namespace carto {
 
-    OptionalFields::OptionalFields(uint8_t flags, std::shared_ptr<Logger> logger) : _logger(std::move(logger)) {
+    OptionalFields::OptionalFields(uint8_t flags, std::shared_ptr<mvt::Logger> logger) : _logger(std::move(logger)) {
         // check for existence of inficdual fields by bit-masking against the header flag
         _is_debug_file = (flags & MFConstants::_HEADER_BITMASK_DEBUG) != 0;
         _has_start_position = (flags & MFConstants::_HEADER_BITMASK_START_POSITION) != 0;

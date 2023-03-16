@@ -27,7 +27,7 @@
 
 namespace carto {
      
-    ReadBuffer::ReadBuffer(const std::string &path_to_map_file, std::shared_ptr<Logger> logger) :
+    ReadBuffer::ReadBuffer(const std::string &path_to_map_file, std::shared_ptr<mvt::Logger> logger) :
     _data(),
     _tag_ids(),
     _stream(path_to_map_file.c_str(), std::ios::in | std::ios::binary),

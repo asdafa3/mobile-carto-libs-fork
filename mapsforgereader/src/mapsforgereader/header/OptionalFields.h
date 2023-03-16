@@ -46,7 +46,7 @@ namespace carto {
          *
          * @param flags Flags byte indicating existence of optional fields.
          */
-        OptionalFields(uint8_t flags, std::shared_ptr<Logger> logger);
+        OptionalFields(uint8_t flags, std::shared_ptr<mvt::Logger> logger);
 
         /**
          * Reads the optional fields of a Mapsforge .map binary file from the header meta data. Existence of individual optional
@@ -115,7 +115,7 @@ namespace carto {
 
         const std::string _tag = "OptionalFields";
 
-        const std::shared_ptr<Logger> _logger;
+        const std::shared_ptr<mvt::Logger> _logger;
     };
 }
 

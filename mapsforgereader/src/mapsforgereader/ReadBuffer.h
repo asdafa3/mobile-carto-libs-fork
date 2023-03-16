@@ -42,7 +42,7 @@ namespace carto {
 
         
     
-        ReadBuffer(const std::string &path_to_map_file, std::shared_ptr<Logger> logger);
+        ReadBuffer(const std::string &path_to_map_file, std::shared_ptr<mvt::Logger> logger);
         virtual ~ReadBuffer();
 
         /*
@@ -216,7 +216,7 @@ namespace carto {
 
         const std::string _tag = "ReadBuffer";
 
-        const std::shared_ptr<Logger> _logger;
+        const std::shared_ptr<mvt::Logger> _logger;
     };
 }
 
