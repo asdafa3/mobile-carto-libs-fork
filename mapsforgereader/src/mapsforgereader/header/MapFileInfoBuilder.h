@@ -37,7 +37,7 @@ namespace carto {
 
         MapFileInfo build() const;
 
-        MapBounds _bounding_box;
+        mvt::MapBounds _bounding_box;
         uint64_t _file_size;
         uint32_t _file_version;
         uint64_t _map_date;

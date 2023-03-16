@@ -40,7 +40,7 @@ namespace carto {
 
         ~MapFileInfo();
 
-        const MapBounds &getBoundingBox() const;
+        const mvt::MapBounds &getBoundingBox() const;
 
         const uint32_t &getFileVersion() const;
 
@@ -80,7 +80,7 @@ namespace carto {
         /**
          * EPSG:3857 projected bounding box spanned by min and max position.
          */
-        MapBounds _bounding_box;
+        mvt::MapBounds _bounding_box;
 
         /**
          * The version number of the file.

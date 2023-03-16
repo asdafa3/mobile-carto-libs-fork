@@ -61,7 +61,7 @@ namespace carto {
 
         MapFile::~MapFile() {}
 
-        const mvt::MapBounds &MapFile::getMapBounds() const {
+        const mvt::MapBounds &MapFile::getmvt::MapBounds() const {
             return _map_file_header.getMapFileInfo()->getBoundingBox();
         }
 
@@ -80,13 +80,13 @@ namespace carto {
 
         bool MapFile::containsTile(const mvt::MapTile &tile) {
             // projection is EPSG3857
-            MapBounds bboxTile = _tileTransformer->calculateTileBBox(tile);
+            mvt::MapBounds bboxTile = _tileTransformer->calculateTileBBox(tile);
             bboxTile.min = MapPos(bboxTile.min(0), -bboxTile.min(1));
             bboxTile.max = MapPos(bboxTile.max(0), -bboxTile.max(1));
-            MapBounds bboxMapFile = _map_file_header.getMapFileInfo()->getBoundingBox();
+            mvt::MapBounds bboxMapFile = _map_file_header.getMapFileInfo()->getBoundingBox();
 
             // check if tile bounding box is inside or interecting with the map file bbox
-            MapBounds bboxIntersection = bboxTile.intersect(bboxMapFile);
+            mvt::MapBounds bboxIntersection = bboxTile.intersect(bboxMapFile);
             bool intersects = !bboxIntersection.empty();
 
             // check if the .map file supports the zoom level of the query tile
@@ -109,18 +109,18 @@ namespace carto {
 
             mvt::MapTile flippedTile(tile.zoom, tile.x, -tile.y);
             // calculate tile origin for decoding coordinates later
-            MapBounds projectedMapBounds = _tileTransformer->calculateTileBBox(flippedTile);
-            // MapBounds projectedMapBounds = TileUtils::Calculatemvt::MapTileBounds(tile.getFlipped(), _projection);
-            MapPos projectedMin = _projection->toWgs84(projectedMapBounds.min);
-            MapPos projectedMax = _projection->toWgs84(projectedMapBounds.max);
-            MapBounds latLonBounds(projectedMin, projectedMax);
+            mvt::MapBounds projectedmvt::MapBounds = _tileTransformer->calculateTileBBox(flippedTile);
+            // mvt::MapBounds projectedmvt::MapBounds = TileUtils::Calculatemvt::MapTileBounds(tile.getFlipped(), _projection);
+            MapPos projectedMin = _projection->toWgs84(projectedmvt::MapBounds.min);
+            MapPos projectedMax = _projection->toWgs84(projectedmvt::MapBounds.max);
+            mvt::MapBounds latLonBounds(projectedMin, projectedMax);
 
             return processBlocks(queryParams, subFileParameter, latLonBounds, selector);
         }
 
         std::shared_ptr <MapQueryResult>
         MapFile::processBlocks(const QueryParameters &queryParams, const SubFileParameters &subFileParams,
-                               const MapBounds &mapBounds, Selector selector) {
+                               const mvt::MapBounds &mapBounds, Selector selector) {
 
             MapQueryResult mapQueryResult{};
 
@@ -197,13 +197,13 @@ namespace carto {
                     );
 
                     mvt::MapTile flippedTile(boundaryTileTopLeft.zoom, boundaryTileTopLeft.x, -boundaryTileTopLeft.y);
-                    MapBounds projectedMapBounds = _tileTransformer->calculateTileBBox(flippedTile);
-                    // MapBounds min is bottom left (south-west), MapBounds max is top right (north-east).
+                    mvt::MapBounds projectedmvt::MapBounds = _tileTransformer->calculateTileBBox(flippedTile);
+                    // mvt::MapBounds min is bottom left (south-west), mvt::MapBounds max is top right (north-east).
                     // We need top-left position for further calculations. Coordinates are in WGS84.
-                    MapPos projectedMin = _projection->toWgs84(projectedMapBounds.min);
-                    MapPos projectedMax = _projection->toWgs84(projectedMapBounds.max);
-                    // MapPos projectedMin = _projection->toWgs84(projectedMapBounds.min);
-                    // MapPos projectedMax = _projection->toWgs84(projectedMapBounds.max);
+                    MapPos projectedMin = _projection->toWgs84(projectedmvt::MapBounds.min);
+                    MapPos projectedMax = _projection->toWgs84(projectedmvt::MapBounds.max);
+                    // MapPos projectedMin = _projection->toWgs84(projectedmvt::MapBounds.min);
+                    // MapPos projectedMax = _projection->toWgs84(projectedmvt::MapBounds.max);
                     MapPos topLeftPosition(projectedMin(1), projectedMax(2));
 
                     try {
@@ -223,7 +223,7 @@ namespace carto {
             return std::make_shared<MapQueryResult>(mapQueryResult);
         }
 
-        bool MapFile::processWays(const QueryParameters &queryParams, uint32_t numberOfWays, const MapBounds &mapBounds,
+        bool MapFile::processWays(const QueryParameters &queryParams, uint32_t numberOfWays, const mvt::MapBounds &mapBounds,
                                   bool filterRequired, const MapPos &tileOrigin, Selector selector,
                                   std::vector <Way> *ways, ReadBuffer &readBuffer) {
 
@@ -231,7 +231,7 @@ namespace carto {
 
             // Extend the bounding box by a few meters to have filter crossing ways.
             // Defining bounding box positions are in wgs84 format before and in projected coordinates after.
-            MapBounds wayFilterBox = LatLongUtils::enlarge(mapBounds, 100);
+            mvt::MapBounds wayFilterBox = LatLongUtils::enlarge(mapBounds, 100);
 
             for (uint32_t elemCounter = numberOfWays; elemCounter != 0; --elemCounter) {
                 if (_map_file_header.getMapFileInfo()->getDebugInfo()) {
@@ -478,7 +478,7 @@ namespace carto {
             return labelPosition;
         }
 
-        bool MapFile::processPois(const MapPos &tileOrigin, uint32_t numberOfPois, const MapBounds &mapBounds, bool filterRequired, std::vector <POI> *pois, ReadBuffer &readBuffer) {
+        bool MapFile::processPois(const MapPos &tileOrigin, uint32_t numberOfPois, const mvt::MapBounds &mapBounds, bool filterRequired, std::vector <POI> *pois, ReadBuffer &readBuffer) {
             std::vector <Tag> poiTags = _map_file_header.getMapFileInfo()->getPoiTags();
 
             for (uint32_t elementCounter = numberOfPois; elementCounter != 0; --elementCounter) {
@@ -622,7 +622,7 @@ namespace carto {
         }
 
         bool MapFile::processSingleBlock(const QueryParameters &queryParams, const SubFileParameters &subFileParams,
-                                         const MapBounds &mapBounds, const MapPos &tileOrigin, Selector selector,
+                                         const mvt::MapBounds &mapBounds, const MapPos &tileOrigin, Selector selector,
                                          TileDataBundle *bundle, ReadBuffer &readBuffer) {
             if (!processBlockSignature(readBuffer)) {
                 return false;

@@ -79,7 +79,7 @@ namespace carto {
              * Bounds min/max are in latitudes/longitudes.
              * @return The map bounds for the map file.
              */
-            const MapBounds &getMapBounds() const;
+            const mvt::MapBounds &getmvt::MapBounds() const;
 
             /**
              * Given an input tile query in XYZ coordinate scheme, reads all map data
@@ -119,7 +119,7 @@ namespace carto {
              * @return True if all data could successfully read.
              */
             bool
-            processPois(const MapPos &tileOrigin, uint32_t numberOfPois, const MapBounds &mapBounds, bool filterRequired,
+            processPois(const MapPos &tileOrigin, uint32_t numberOfPois, const mvt::MapBounds &mapBounds, bool filterRequired,
                         std::vector <POI> *pois, ReadBuffer &readBuffer);
 
 
@@ -136,7 +136,7 @@ namespace carto {
              * @param readBuffer The readBuffer containing the data for the current block.
              * @return
              */
-            bool processWays(const QueryParameters &queryParams, uint32_t numberOfWays, const MapBounds &mapBounds,
+            bool processWays(const QueryParameters &queryParams, uint32_t numberOfWays, const mvt::MapBounds &mapBounds,
                              bool filterRequired,
                              const MapPos &tileOrigin, Selector selector, std::vector <Way> *ways, ReadBuffer &readBuffer);
 
@@ -201,7 +201,7 @@ namespace carto {
              * @return
              */
             bool processSingleBlock(const QueryParameters &queryParams, const SubFileParameters &subFileParams,
-                                    const MapBounds &mapBounds, const MapPos &tileOrigin, Selector selector,
+                                    const mvt::MapBounds &mapBounds, const MapPos &tileOrigin, Selector selector,
                                     TileDataBundle *bundle,
                                     ReadBuffer &readBuffer);
 
@@ -216,7 +216,7 @@ namespace carto {
              */
             std::shared_ptr <MapQueryResult>
             processBlocks(const QueryParameters &queryParams, const SubFileParameters &subFileParams,
-                          const MapBounds &mapBounds, Selector selector);
+                          const mvt::MapBounds &mapBounds, Selector selector);
 
             /**
              * Reads how many pois and ways are contained for a block based on the difference to the base

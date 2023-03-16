@@ -34,7 +34,7 @@ namespace carto {
         SubFileParameters build() const;
 
         uint8_t _base_zoom_level;
-        MapBounds _bounding_box;
+        mvt::MapBounds _bounding_box;
         uint64_t _index_start_address;
         uint64_t _start_address;
         uint8_t _zoom_level_max;

@@ -51,7 +51,7 @@ namespace carto {
          * @param wayBlocks List of subsequent way blocks from a .map file.
          * @return True of part of the way block intersect with the bounding box.
          */
-        static bool intersectsArea(const MapBounds &mapBounds, const std::vector<std::vector<MapPos>> &wayBlocks);
+        static bool intersectsArea(const mvt::MapBounds &mapBounds, const std::vector<std::vector<MapPos>> &wayBlocks);
 
         /**
          * Calculates the vertical latitude extent from meters.
@@ -76,7 +76,7 @@ namespace carto {
          * @param meters Meters in each spatial direction.
          * @return Enlarged bounding box.
          */
-        static MapBounds enlarge(const MapBounds& bounds, int meters);
+        static mvt::MapBounds enlarge(const mvt::MapBounds& bounds, int meters);
     private:
         LatLongUtils();
     };

@@ -39,9 +39,9 @@ namespace carto {
         return value;
     }
 
-    mvt::MapBounds LatLongUtils::enlarge(const MapBounds& bounds, int meters) {
+    mvt::MapBounds LatLongUtils::enlarge(const mvt::MapBounds& bounds, int meters) {
         if (meters < 0) {
-            throw GenericException("MapBounds::enlarge: BoundingBox extend operation does not accept negative values");
+            throw GenericException("mvt::MapBounds::enlarge: BoundingBox extend operation does not accept negative values");
         }
 
         double verticalExpansion = latitudeDistance(meters);
@@ -54,11 +54,11 @@ namespace carto {
 
         MapPos min(minLon, minLat);
         MapPos max(maxLon, maxLat);
-        MapBounds newBounds(min, max);
+        mvt::MapBounds newBounds(min, max);
         return newBounds;
     }
 
-    bool LatLongUtils::intersectsArea(const MapBounds &mapBounds, const std::vector<std::vector<MapPos>> &wayBlocks) {
+    bool LatLongUtils::intersectsArea(const mvt::MapBounds &mapBounds, const std::vector<std::vector<MapPos>> &wayBlocks) {
 
         // x is latitude, y is longitude
 
@@ -93,10 +93,10 @@ namespace carto {
 
         MapPos min(tmpMinLon, tmpMinLat);
         MapPos max(tmpMaxLon, tmpMaxLat);
-        MapBounds checkBox(min, max);
+        mvt::MapBounds checkBox(min, max);
 
         // perform the intersection check
-        MapBounds intersectionBBox = mapBounds.intersect(checkBox);
+        mvt::MapBounds intersectionBBox = mapBounds.intersect(checkBox);
         bool intersects = !intersectionBBox.empty();
         return intersects;
     }
