@@ -6,7 +6,7 @@
 namespace carto {
     class Projection {
         public: 
-            using MapPos = carto::mvt::MapPos;
+            
 
             virtual ~Projection();
 

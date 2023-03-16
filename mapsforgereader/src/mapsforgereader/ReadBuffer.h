@@ -40,7 +40,7 @@ namespace carto {
     class ReadBuffer {
     public:
 
-        using Logger = carto::mvt::Logger;
+        
     
         ReadBuffer(const std::string &path_to_map_file, std::shared_ptr<Logger> logger);
         virtual ~ReadBuffer();

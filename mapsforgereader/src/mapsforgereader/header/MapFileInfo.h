@@ -34,7 +34,7 @@ namespace carto {
     class MapFileInfo {
     public:
 
-        using MapBounds = carto::mvt::MapBounds;
+        
 
         MapFileInfo(const MapFileInfoBuilder &map_file_info_builder);
 

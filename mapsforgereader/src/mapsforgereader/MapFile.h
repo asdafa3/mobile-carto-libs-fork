@@ -59,11 +59,11 @@ namespace carto {
         class MapFile {
         public:
 
-            using MapBounds = carto::mvt::MapBounds;
-            using MapTile = carto::mvt::MapTile;
-            using MapPos = carto::mvt::MapPos;
+            
+            
+            
 
-            using Logger = carto::mvt::Logger;
+            
 
             /**
              * Construct a MapFile instance for a specific .map file specified by it path.

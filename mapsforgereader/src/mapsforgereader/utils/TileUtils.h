@@ -6,8 +6,8 @@
 namespace carto {
     class TileUtils {
         public: 
-            using MapPos = carto::mvt::MapPos;
-            using MapTile = carto::mvt::MapTile;
+            
+            
 
             virtual ~TileUtils();
 

@@ -27,7 +27,7 @@ namespace carto {
      */
     class SubFileParameterBuilder {
     public:
-        using MapBounds = carto::mvt::MapBounds;
+        
 
         SubFileParameterBuilder();
 

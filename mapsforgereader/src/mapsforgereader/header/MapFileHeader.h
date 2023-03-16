@@ -34,7 +34,7 @@ namespace carto {
      */
     class MapFileHeader {
     public:
-        using Logger = carto::mvt::Logger;
+        
 
         MapFileHeader(std::shared_ptr<mvt::Logger> logger);
         ~MapFileHeader();

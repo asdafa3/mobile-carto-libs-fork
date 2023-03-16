@@ -27,7 +27,7 @@ namespace carto {
      */
     class Way {
     public:
-        using MapPos = carto::mvt::MapPos;
+        
 
         Way(int8_t layer, const std::vector<Tag>& tags, const std::vector<std::vector<MapPos>>& coords, MapPos labelPosition);
 

@@ -33,9 +33,9 @@ namespace carto {
     class LatLongUtils {
     public: 
 
-        using MapBounds = carto::mvt::MapBounds;
-        using MapTile = carto::mvt::MapTile;
-        using MapPos = carto::mvt::MapPos;
+        
+        
+        
 
         /**
          * Converts lat lon in microdegrees to degrees.

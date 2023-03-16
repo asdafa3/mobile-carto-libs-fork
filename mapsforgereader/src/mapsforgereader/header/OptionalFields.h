@@ -36,8 +36,8 @@ namespace carto {
     class OptionalFields {
     public:
 
-        using MapPos = carto::mvt::MapPos;
-        using Logger = carto::mvt::Logger;
+        
+        
 
         /**
          * Constructs a class to read and parse optional fields contained in the header segment of a .map file.

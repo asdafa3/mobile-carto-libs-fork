@@ -27,7 +27,7 @@ namespace carto {
     class QueryCalculations {
     public:
 
-        using MapTile = carto::mvt::MapTile;
+        
 
         /**
          * Calculate tile bitmask for tiles inside a zoom interval that are

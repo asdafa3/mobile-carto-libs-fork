@@ -26,9 +26,9 @@ namespace carto {
      */
     class SubFileParameters {
     public:
-        using MapPos = carto::mvt::MapPos;
-        using MapBounds = carto::mvt::MapBounds;
-        using MapTile = carto::mvt::MapTile;
+        
+        
+        
 
         SubFileParameters();
         SubFileParameters(const SubFileParameterBuilder &subFileParameterBuilder);

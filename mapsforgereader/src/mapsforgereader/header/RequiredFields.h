@@ -37,9 +37,9 @@ namespace carto {
     class RequiredFields final {
     public:
 
-        using MapPos = carto::mvt::MapPos;
-        using MapBounds = carto::mvt::MapBounds;
-        using Logger = carto::mvt::Logger;
+        
+        
+        
 
         /**
          * Reads the bbox information contained in the header segment of the .map file. BBox is in EPSG:3857.

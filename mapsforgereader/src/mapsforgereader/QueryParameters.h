@@ -27,7 +27,7 @@ namespace carto {
     class QueryParameters {
     public:
 
-        using MapTile = carto::mvt::MapTile;
+        
         
         QueryParameters();
 

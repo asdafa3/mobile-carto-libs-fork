@@ -27,7 +27,7 @@ namespace carto {
      */
     class POI {
     public:
-        using MapPos = carto::mvt::MapPos;
+        
 
         POI(int8_t layer, std::vector<Tag> tags, MapPos position);
 
