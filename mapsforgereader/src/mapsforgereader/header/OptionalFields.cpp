@@ -68,7 +68,7 @@ namespace carto {
         if (_has_start_zoom_level) {
             uint8_t mapStartZoomLevel = readBuffer -> read_byte();
             if (mapStartZoomLevel < 0 || mapStartZoomLevel > MFConstants::_START_ZOOM_LEVEL_MAX) {
-                _logger->write(Logger::Severity::ERROR, tfm::format("%s::invalid start zoom level: %d", _tag, mapStartZoomLevel));
+                _logger->write(mvt::Logger::Severity::ERROR, tfm::format("%s::invalid start zoom level: %d", _tag, mapStartZoomLevel));
                 //Log::Errorf("OptionalFields::readMapStartZoomLevel: invalid start zoom level: %d", mapStartZoomLevel);
                 //throw GenericException("OptionalFields::readMapStartZoomLevel: invalid start zoom level");
                 throw std::runtime_error(tfm::format("%s::Invalid start zoom level", _tag));

@@ -34,7 +34,7 @@ namespace carto {
     _logger(std::move(logger))
     {
         if(_stream.fail()) {
-            _logger->write(Logger::Severity::ERROR, tfm::format("%s::Error opening map file at path '%s'", _tag, path_to_map_file));
+            _logger->write(mvt::Logger::Severity::ERROR, tfm::format("%s::Error opening map file at path '%s'", _tag, path_to_map_file));
             // Log::Errorf("ReadBuffer::Error opening map file at path '%s'", path_to_map_file);
             throw std::runtime_error(tfm::format("%s::Error opening map file.", _tag));
         }
@@ -55,7 +55,7 @@ namespace carto {
         _stream.seekg(0);
 
         if (!_stream.read((char*) &bytes[0], length)) {
-            _logger->write(Logger::Severity::ERROR, tfm::format("%s::Error reading from map file", _tag));
+            _logger->write(mvt::Logger::Severity::ERROR, tfm::format("%s::Error reading from map file", _tag));
             // Log::Error("ReadBuffer::Error reading from map file");
             return false;
         }
@@ -72,7 +72,7 @@ namespace carto {
         _stream.seekg(offset);
 
         if (!_stream.read((char*) &bytes[0], length)) {
-            _logger->write(Logger::Severity::ERROR, tfm::format("%s::Error reading from map file", _tag));
+            _logger->write(mvt::Logger::Severity::ERROR, tfm::format("%s::Error reading from map file", _tag));
             // Log::Error("ReadBuffer::Error reading from map file");
             return false;
         }
@@ -193,7 +193,7 @@ namespace carto {
         for (uint8_t tagIndex = numberOfTags; tagIndex != 0; --tagIndex) {
             uint64_t tagId = read_var_ulong();
             if (tagId < 0 || tagId >= maxTag) {
-                _logger->write(Logger::Severity::ERROR, tfm::format("%s::Invalid tag ID: %d", _tag, tagId));
+                _logger->write(mvt::Logger::Severity::ERROR, tfm::format("%s::Invalid tag ID: %d", _tag, tagId));
                 // Log::Warnf("ReadBuffer::readTags: Invalid tag ID: %d", tagId);
                 return false;
             }
