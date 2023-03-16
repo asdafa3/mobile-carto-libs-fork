@@ -87,7 +87,7 @@ namespace carto {
              * @param tile An abstract tile information in form of coordinates in XYZ scheme.
              * @return A bundle of POIs and Way data
              */
-            std::shared_ptr <MapQueryResult> readMapData(const MapTile &tile);
+            std::shared_ptr <MapQueryResult> readMapData(const mvt::MapTile &tile);
 
             /**
              * Given an input tile query in XYZ coordinate scheme, reads selected map data
@@ -95,14 +95,14 @@ namespace carto {
              * @param tile An abstract tile information in form of coordinates in XYZ scheme.
              * @return A bundle of POIs and no Ways.
              */
-            std::shared_ptr <MapQueryResult> readPoiData(const MapTile &tile);
+            std::shared_ptr <MapQueryResult> readPoiData(const mvt::MapTile &tile);
 
             /**
              * Checks if the requested tile is contained in the bounding box of the extent covered by the map file.
              * @param tile Tile definition in XYZ coordinates.
              * @return
              */
-            bool containsTile(const MapTile &tile);
+            bool containsTile(const mvt::MapTile &tile);
 
             void setTileTransformer(const std::shared_ptr<vt::TileTransformer>& tileTransformer);
 
@@ -237,7 +237,7 @@ namespace carto {
              * @param selector Indicator which kind of data should be queried.
              * @return
              */
-            std::shared_ptr <MapQueryResult> readMapData(const MapTile &tile, Selector selector);
+            std::shared_ptr <MapQueryResult> readMapData(const mvt::MapTile &tile, Selector selector);
 
             /**
              * Checks the signature of a block. If the block has an invalid signature, it is

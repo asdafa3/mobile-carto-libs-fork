@@ -65,11 +65,11 @@ namespace carto {
             return _map_file_header.getMapFileInfo()->getBoundingBox();
         }
 
-        std::shared_ptr <MapQueryResult> MapFile::readPoiData(const MapTile &tile) {
+        std::shared_ptr <MapQueryResult> MapFile::readPoiData(const mvt::MapTile &tile) {
             return readMapData(tile, Selector::POIS);
         }
 
-        std::shared_ptr <MapQueryResult> MapFile::readMapData(const MapTile &tile) {
+        std::shared_ptr <MapQueryResult> MapFile::readMapData(const mvt::MapTile &tile) {
             return readMapData(tile, Selector::ALL);
         }
 
@@ -78,7 +78,7 @@ namespace carto {
             _tileTransformer = tileTransformer;
         }
 
-        bool MapFile::containsTile(const MapTile &tile) {
+        bool MapFile::containsTile(const mvt::MapTile &tile) {
             // projection is EPSG3857
             MapBounds bboxTile = _tileTransformer->calculateTileBBox(tile);
             bboxTile.min = MapPos(bboxTile.min(0), -bboxTile.min(1));
@@ -97,7 +97,7 @@ namespace carto {
             return intersects && zoomInRange;
         }
 
-        std::shared_ptr <MapQueryResult> MapFile::readMapData(const MapTile &tile, Selector selector) {
+        std::shared_ptr <MapQueryResult> MapFile::readMapData(const mvt::MapTile &tile, Selector selector) {
             QueryParameters queryParams{};
             queryParams.setQueryZoomLevel(_map_file_header.getQueryZoomLevel(tile.zoom));
 
@@ -107,10 +107,10 @@ namespace carto {
             // calculate corresponding blocks in .map file from the previosly calculated tiles
             queryParams.calculateBlocks(subFileParameter);
 
-            MapTile flippedTile(tile.zoom, tile.x, -tile.y);
+            mvt::MapTile flippedTile(tile.zoom, tile.x, -tile.y);
             // calculate tile origin for decoding coordinates later
             MapBounds projectedMapBounds = _tileTransformer->calculateTileBBox(flippedTile);
-            // MapBounds projectedMapBounds = TileUtils::CalculateMapTileBounds(tile.getFlipped(), _projection);
+            // MapBounds projectedMapBounds = TileUtils::Calculatemvt::MapTileBounds(tile.getFlipped(), _projection);
             MapPos projectedMin = _projection->toWgs84(projectedMapBounds.min);
             MapPos projectedMax = _projection->toWgs84(projectedMapBounds.max);
             MapBounds latLonBounds(projectedMin, projectedMax);
@@ -190,13 +190,13 @@ namespace carto {
                     }
                     _mutex.unlock();
 
-                    MapTile boundaryTileTopLeft(
+                    mvt::MapTile boundaryTileTopLeft(
                         subFileParams.getBaseZoomLevel(),
                         subFileParams.getBoundaryTileLeft() + col,
                         subFileParams.getBoundaryTileTop() + row
                     );
 
-                    MapTile flippedTile(boundaryTileTopLeft.zoom, boundaryTileTopLeft.x, -boundaryTileTopLeft.y);
+                    mvt::MapTile flippedTile(boundaryTileTopLeft.zoom, boundaryTileTopLeft.x, -boundaryTileTopLeft.y);
                     MapBounds projectedMapBounds = _tileTransformer->calculateTileBBox(flippedTile);
                     // MapBounds min is bottom left (south-west), MapBounds max is top right (north-east).
                     // We need top-left position for further calculations. Coordinates are in WGS84.

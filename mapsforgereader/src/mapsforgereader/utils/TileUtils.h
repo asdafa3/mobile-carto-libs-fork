@@ -11,8 +11,8 @@ namespace carto {
 
             virtual ~TileUtils();
 
-            virtual MapPos CalculateMapTile(double lat, double lng) const;
-            virtual MapPos CalculateMapTile(double x, double y) const;
+            virtual MapPos Calculatemvt::MapTile(double lat, double lng) const;
+            virtual MapPos Calculatemvt::MapTile(double x, double y) const;
         protected:
             explicit TileUtils();
     };

@@ -20,7 +20,7 @@ namespace carto {
 
     QueryCalculations::QueryCalculations() { }
 
-    uint16_t QueryCalculations::calculateTileBitmask(const MapTile &tile, int zoomLevelDifference) {
+    uint16_t QueryCalculations::calculateTileBitmask(const mvt::MapTile &tile, int zoomLevelDifference) {
         if (zoomLevelDifference == 1) {
             return getFirstLevelTileBitmask(tile);
         }
@@ -45,7 +45,7 @@ namespace carto {
         }
     }
 
-    uint16_t QueryCalculations::getFirstLevelTileBitmask(const MapTile &tile) {
+    uint16_t QueryCalculations::getFirstLevelTileBitmask(const mvt::MapTile &tile) {
         if (tile.x % 2 == 0 && tile.y % 2 == 0) {
             // upper left quadrant
             return 0xcc00;
