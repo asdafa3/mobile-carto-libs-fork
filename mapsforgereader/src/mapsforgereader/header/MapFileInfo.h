@@ -18,7 +18,7 @@
 #ifndef CARTO_MOBILE_SDK_MAPFILEINFO_H
 #define CARTO_MOBILE_SDK_MAPFILEINFO_H
 
-#include <mapnikvt/Types.h>
+
 #include <mapsforgereader/model/Tag.h>
 #include <mapsforgereader/header/MapFileInfoBuilder.h>
 
@@ -33,14 +33,15 @@ namespace carto {
      */
     class MapFileInfo {
     public:
-
-        
+        typedef cglib::vec3<double> MapPos;
+        typedef cglib::bbox3<double> MapBounds;
+        typedef vt::TileId MapTile;
 
         MapFileInfo(const MapFileInfoBuilder &map_file_info_builder);
 
         ~MapFileInfo();
 
-        const mvt::MapBounds &getBoundingBox() const;
+        const MapBounds &getBoundingBox() const;
 
         const uint32_t &getFileVersion() const;
 
@@ -80,7 +81,7 @@ namespace carto {
         /**
          * EPSG:3857 projected bounding box spanned by min and max position.
          */
-        mvt::MapBounds _bounding_box;
+        MapBounds _bounding_box;
 
         /**
          * The version number of the file.

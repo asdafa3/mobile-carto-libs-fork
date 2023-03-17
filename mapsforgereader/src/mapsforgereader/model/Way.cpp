@@ -24,11 +24,11 @@ namespace carto {
         _label_position = labelPosition;
     }
 
-    mvt::MapPos Way::getLabelPosition() const {
+    MapPos Way::getLabelPosition() const {
         return _label_position;
     }
 
-    std::vector<std::vector<mvt::MapPos>> Way::getCoords() const {
+    std::vector<std::vector<MapPos>> Way::getCoords() const {
         return _coords;
     }
 

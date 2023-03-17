@@ -19,7 +19,7 @@
 
 #include <mapsforgereader/model/Tag.h>
 #include <vector>
-#include <mapnikvt/Types.h>
+
 
 namespace carto {
     /**
@@ -27,7 +27,7 @@ namespace carto {
      */
     class POI {
     public:
-        
+        typedef cglib::vec3<double> MapPos;
 
         POI(int8_t layer, std::vector<Tag> tags, MapPos position);
 

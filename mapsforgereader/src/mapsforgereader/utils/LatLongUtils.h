@@ -22,7 +22,7 @@
 #define CARTO_MOBILE_SDK_LATLONGUTILS_H
 
 
-#include "mapnikvt/Types.h"
+
 #include <vector>
 
 namespace carto {
@@ -32,10 +32,8 @@ namespace carto {
      */
     class LatLongUtils {
     public: 
-
-        
-        
-        
+        typedef cglib::vec3<double> MapPos;
+        typedef cglib::bbox3<double> MapBounds;
 
         /**
          * Converts lat lon in microdegrees to degrees.
@@ -51,7 +49,7 @@ namespace carto {
          * @param wayBlocks List of subsequent way blocks from a .map file.
          * @return True of part of the way block intersect with the bounding box.
          */
-        static bool intersectsArea(const mvt::MapBounds &mapBounds, const std::vector<std::vector<MapPos>> &wayBlocks);
+        static bool intersectsArea(const MapBounds &mapBounds, const std::vector<std::vector<MapPos>> &wayBlocks);
 
         /**
          * Calculates the vertical latitude extent from meters.
@@ -76,7 +74,7 @@ namespace carto {
          * @param meters Meters in each spatial direction.
          * @return Enlarged bounding box.
          */
-        static mvt::MapBounds enlarge(const mvt::MapBounds& bounds, int meters);
+        static MapBounds enlarge(const MapBounds& bounds, int meters);
     private:
         LatLongUtils();
     };

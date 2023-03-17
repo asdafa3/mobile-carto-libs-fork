@@ -26,10 +26,6 @@ namespace carto {
      */
     class SubFileParameters {
     public:
-        
-        
-        
-
         SubFileParameters();
         SubFileParameters(const SubFileParameterBuilder &subFileParameterBuilder);
         ~SubFileParameters();

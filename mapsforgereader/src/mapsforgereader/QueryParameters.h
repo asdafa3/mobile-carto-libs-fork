@@ -18,17 +18,16 @@
 #define CARTO_MOBILE_SDK_QUERYPARAMETERS_H
 
 #include <mapsforgereader/header/SubFileParameters.h>
-#include <mapnikvt/Types.h>
+#include <vt/TileId.h>
 
 namespace carto {
     /**
      * Calculates base tiles covered by a query tile on the base zoom level of a sub file.
      */
     class QueryParameters {
-    public:
+    public:        
+        typedef vt::TileId MapTile;
 
-        
-        
         QueryParameters();
 
         /**
@@ -42,7 +41,7 @@ namespace carto {
          * @param tile Tile XYZ coordinates.
          * @param subFileParameters Zoom interval configuration the query tile belongs to.
          */
-        void calculateTiles(const mvt::MapTile &tile, const SubFileParameters &subFileParameters);
+        void calculateTiles(const MapTile &tile, const SubFileParameters &subFileParameters);
 
         /**
          * Calculates blocks as used by Mapsforge from regular tile coordiantes.

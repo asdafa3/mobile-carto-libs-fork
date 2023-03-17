@@ -20,7 +20,7 @@
 namespace carto {
     QueryParameters::QueryParameters() {}
 
-    void QueryParameters::calculateTiles(const mvt::MapTile &tile, const SubFileParameters &subFileParameters) {
+    void QueryParameters::calculateTiles(const MapTile &tile, const SubFileParameters &subFileParameters) {
         if (tile.zoom < subFileParameters.getBaseZoomLevel()) {
             // calculate the XY numbers of the upper left and lower right sub-tiles
             int zoomLevelDiff = subFileParameters.getBaseZoomLevel() - tile.zoom;

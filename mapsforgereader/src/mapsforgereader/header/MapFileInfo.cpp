@@ -45,7 +45,7 @@ namespace carto {
 
     // Getters and setters
 
-    const mvt::MapBounds &MapFileInfo::getBoundingBox() const {
+    const MapBounds &MapFileInfo::getBoundingBox() const {
         return _bounding_box;
     }
 

@@ -17,7 +17,7 @@
 #ifndef CARTO_MOBILE_SDK_QUERYCALCULATIONS_H
 #define CARTO_MOBILE_SDK_QUERYCALCULATIONS_H
 
-#include <mapnikvt/Types.h>
+#include <vt/TileId.h>
 
 namespace carto {
 
@@ -26,8 +26,7 @@ namespace carto {
      */
     class QueryCalculations {
     public:
-
-        
+        typedef vt::TileId MapTile;
 
         /**
          * Calculate tile bitmask for tiles inside a zoom interval that are
@@ -54,7 +53,7 @@ namespace carto {
          * @param zoomLevelDifference Difference of tile zoom level to base zoom level.
          * @return First or second level subtile bitmask.
          */
-        static uint16_t calculateTileBitmask(const mvt::MapTile &tile, int zoomLevelDifference);
+        static uint16_t calculateTileBitmask(const MapTile &tile, int zoomLevelDifference);
     private:
 
         /**
@@ -63,7 +62,7 @@ namespace carto {
          * @param tile Tile definition in XYZ scheme.
          * @return First level sub tile bitmask.
          */
-        static uint16_t getFirstLevelTileBitmask(const mvt::MapTile &tile);
+        static uint16_t getFirstLevelTileBitmask(const MapTile &tile);
 
         /**
          * Calculate second level bitmask for the lower left quadrant.

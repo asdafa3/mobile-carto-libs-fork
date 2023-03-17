@@ -96,7 +96,7 @@ namespace carto {
         return _lang_preference;
     }
 
-    const mvt::MapPos & OptionalFields::getStartPosition() const {
+    const MapPos & OptionalFields::getStartPosition() const {
         return _start_position;
     }
 

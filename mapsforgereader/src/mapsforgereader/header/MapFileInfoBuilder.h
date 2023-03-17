@@ -17,7 +17,7 @@
 #ifndef CARTO_MOBILE_SDK_MAPFILEINFOBUILDER_H
 #define CARTO_MOBILE_SDK_MAPFILEINFOBUILDER_H
 
-#include <mapnikvt/Types.h>
+
 
 #include <mapsforgereader/model/Tag.h>
 #include <mapsforgereader/header/OptionalFields.h>
@@ -33,11 +33,15 @@ namespace carto {
      */
     class MapFileInfoBuilder {
     public:
+        typedef cglib::vec3<double> MapPos;
+        typedef cglib::bbox3<double> MapBounds;
+        typedef vt::TileId MapTile;
+
         MapFileInfoBuilder();
 
         MapFileInfo build() const;
 
-        mvt::MapBounds _bounding_box;
+        MapBounds _bounding_box;
         uint64_t _file_size;
         uint32_t _file_version;
         uint64_t _map_date;

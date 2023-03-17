@@ -19,10 +19,8 @@
 #define CARTO_MOBILE_SDK_OPTIONALFIELDS_H
 
 #include <mapsforgereader/ReadBuffer.h>
-
-#include <mapnikvt/Types.h>
 #include <mapnikvt/Logger.h>
-
+#include <cglib/vec.h>
 #include <tinyformat.h>
 #include <memory>
 
@@ -35,8 +33,7 @@ namespace carto {
      */
     class OptionalFields {
     public:
-
-        
+        typedef cglib::vec3<double> MapPos;
         
 
         /**

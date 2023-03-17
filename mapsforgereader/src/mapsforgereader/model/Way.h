@@ -17,7 +17,7 @@
 #define CARTO_MOBILE_SDK_WAY_H
 
 #include <mapsforgereader/model/Tag.h>
-#include <mapnikvt/Types.h>>
+#include <cglib/vec.h>
 #include <vector>
 
 namespace carto {
@@ -27,7 +27,7 @@ namespace carto {
      */
     class Way {
     public:
-        
+        typedef cglib::vec3<double> MapPos;
 
         Way(int8_t layer, const std::vector<Tag>& tags, const std::vector<std::vector<MapPos>>& coords, MapPos labelPosition);
 

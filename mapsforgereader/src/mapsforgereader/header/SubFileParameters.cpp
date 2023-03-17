@@ -17,7 +17,6 @@
 #include "projections/EPSG3857.h"
 #include "projections/EPSG4326.h"
 #include "utils/TileUtils.h"
-#include "core/mvt::MapTile.h"
 #include "core/MapPos.h"
 #include <iomanip>
 #include <sstream>
@@ -43,8 +42,8 @@ namespace carto {
         MapPos projectedBottomRight = subFileParameterBuilder._bounding_box.max;
 
         // calculate tiles that span the bbox of the map extent
-        mvt::MapTile topLeftTile = TileUtils::Calculatemvt::MapTile(projectedTopLeft, _base_zoom_level, proj).getFlipped();
-        mvt::MapTile bottomRightTile = TileUtils::Calculatemvt::MapTile(projectedBottomRight, _base_zoom_level,proj).getFlipped();
+        MapTile topLeftTile = TileUtils::CalculateMapTile(projectedTopLeft, _base_zoom_level, proj).getFlipped();
+        MapTile bottomRightTile = TileUtils::CalculateMapTile(projectedBottomRight, _base_zoom_level,proj).getFlipped();
 
         // top and bottom are switched
         _boundary_tile_bottom = topLeftTile.y;

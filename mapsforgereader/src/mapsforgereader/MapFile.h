@@ -27,13 +27,14 @@
 #include <mapsforgereader/model/MapQueryResult.h>
 #include <mapsforgereader/QueryParameters.h>
 #include <mapsforgereader/utils/ProjectionUtils.h>
+#include <mapnikvt/Logger.h>
+#include <cglib/vec.h>
+#include <cglib/bbox.h>
+#include <vt/TileId.h>
+#include <vt/TileTransformer.h>
 #include <iostream>
 #include <mutex>
 #include <memory>
-
-#include <mapnikvt/Logger.h>
-#include <mapnikvt/Types.h>
-#include <vt/TileTransformer.h>
 
 namespace carto {
     namespace mapsforge {
@@ -58,12 +59,9 @@ namespace carto {
          */
         class MapFile {
         public:
-
-            
-            
-            
-
-            
+            typedef cglib::vec3<double> MapPos;
+            typedef cglib::bbox3<double> MapBounds;
+            typedef vt::TileId MapTile;
 
             /**
              * Construct a MapFile instance for a specific .map file specified by it path.
@@ -79,7 +77,7 @@ namespace carto {
              * Bounds min/max are in latitudes/longitudes.
              * @return The map bounds for the map file.
              */
-            const mvt::MapBounds &getmvt::MapBounds() const;
+            const MapBounds &getMapBounds() const;
 
             /**
              * Given an input tile query in XYZ coordinate scheme, reads all map data
@@ -87,7 +85,7 @@ namespace carto {
              * @param tile An abstract tile information in form of coordinates in XYZ scheme.
              * @return A bundle of POIs and Way data
              */
-            std::shared_ptr <MapQueryResult> readMapData(const mvt::MapTile &tile);
+            std::shared_ptr <MapQueryResult> readMapData(const MapTile &tile);
 
             /**
              * Given an input tile query in XYZ coordinate scheme, reads selected map data
@@ -95,14 +93,14 @@ namespace carto {
              * @param tile An abstract tile information in form of coordinates in XYZ scheme.
              * @return A bundle of POIs and no Ways.
              */
-            std::shared_ptr <MapQueryResult> readPoiData(const mvt::MapTile &tile);
+            std::shared_ptr <MapQueryResult> readPoiData(const MapTile &tile);
 
             /**
              * Checks if the requested tile is contained in the bounding box of the extent covered by the map file.
              * @param tile Tile definition in XYZ coordinates.
              * @return
              */
-            bool containsTile(const mvt::MapTile &tile);
+            bool containsTile(const MapTile &tile);
 
             void setTileTransformer(const std::shared_ptr<vt::TileTransformer>& tileTransformer);
 
@@ -119,7 +117,7 @@ namespace carto {
              * @return True if all data could successfully read.
              */
             bool
-            processPois(const MapPos &tileOrigin, uint32_t numberOfPois, const mvt::MapBounds &mapBounds, bool filterRequired,
+            processPois(const MapPos &tileOrigin, uint32_t numberOfPois, const MapBounds &mapBounds, bool filterRequired,
                         std::vector <POI> *pois, ReadBuffer &readBuffer);
 
 
@@ -136,7 +134,7 @@ namespace carto {
              * @param readBuffer The readBuffer containing the data for the current block.
              * @return
              */
-            bool processWays(const QueryParameters &queryParams, uint32_t numberOfWays, const mvt::MapBounds &mapBounds,
+            bool processWays(const QueryParameters &queryParams, uint32_t numberOfWays, const MapBounds &mapBounds,
                              bool filterRequired,
                              const MapPos &tileOrigin, Selector selector, std::vector <Way> *ways, ReadBuffer &readBuffer);
 
@@ -201,7 +199,7 @@ namespace carto {
              * @return
              */
             bool processSingleBlock(const QueryParameters &queryParams, const SubFileParameters &subFileParams,
-                                    const mvt::MapBounds &mapBounds, const MapPos &tileOrigin, Selector selector,
+                                    const MapBounds &mapBounds, const MapPos &tileOrigin, Selector selector,
                                     TileDataBundle *bundle,
                                     ReadBuffer &readBuffer);
 
@@ -216,7 +214,7 @@ namespace carto {
              */
             std::shared_ptr <MapQueryResult>
             processBlocks(const QueryParameters &queryParams, const SubFileParameters &subFileParams,
-                          const mvt::MapBounds &mapBounds, Selector selector);
+                          const MapBounds &mapBounds, Selector selector);
 
             /**
              * Reads how many pois and ways are contained for a block based on the difference to the base
@@ -237,7 +235,7 @@ namespace carto {
              * @param selector Indicator which kind of data should be queried.
              * @return
              */
-            std::shared_ptr <MapQueryResult> readMapData(const mvt::MapTile &tile, Selector selector);
+            std::shared_ptr <MapQueryResult> readMapData(const MapTile &tile, Selector selector);
 
             /**
              * Checks the signature of a block. If the block has an invalid signature, it is

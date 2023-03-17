@@ -16,7 +16,7 @@
 #ifndef CARTO_MOBILE_SDK_SUBFILEPARAMETERBUILDER_H
 #define CARTO_MOBILE_SDK_SUBFILEPARAMETERBUILDER_H
 
-#include <mapnikvt/Types.h>
+#include <cglib/bbox.h>
 
 namespace carto {
 
@@ -27,14 +27,14 @@ namespace carto {
      */
     class SubFileParameterBuilder {
     public:
-        
+        typedef cglib::bbox3<double> MapBounds;
 
         SubFileParameterBuilder();
 
         SubFileParameters build() const;
 
         uint8_t _base_zoom_level;
-        mvt::MapBounds _bounding_box;
+        MapBounds _bounding_box;
         uint64_t _index_start_address;
         uint64_t _start_address;
         uint8_t _zoom_level_max;

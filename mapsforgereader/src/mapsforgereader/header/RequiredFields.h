@@ -23,7 +23,7 @@
 // #include "utils/GeomUtils.h"
 
 #include <mapnikvt/Logger.h>
-#include <mapnikvt/Types.h>
+
 #include <tinyformat.h>
 #include <string>
 
@@ -36,11 +36,6 @@ namespace carto {
      */
     class RequiredFields final {
     public:
-
-        
-        
-        
-
         /**
          * Reads the bbox information contained in the header segment of the .map file. BBox is in EPSG:3857.
          *

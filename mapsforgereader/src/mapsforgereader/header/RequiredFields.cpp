@@ -31,7 +31,7 @@ namespace carto {
         MapPos min(minLon, minLat);
         MapPos max(maxLon, maxLat);
         EPSG3857 proj {};
-        mvt::MapBounds bounds(proj.fromWgs84(min), proj.fromWgs84(max));
+        MapBounds bounds(proj.fromWgs84(min), proj.fromWgs84(max));
         mapFileInfoBuilder._bounding_box = bounds;
     }
 
