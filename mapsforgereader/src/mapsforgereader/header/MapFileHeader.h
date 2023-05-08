@@ -34,8 +34,6 @@ namespace carto {
      */
     class MapFileHeader {
     public:
-        
-
         MapFileHeader(std::shared_ptr<mvt::Logger> logger);
         ~MapFileHeader();
 

@@ -1,0 +1,3 @@
+/Users/linusschwarz/source/unimaps/mobile-sdk/libs-carto/mapsforgereader/CMakeFiles/mapsforgereader.dir
+/Users/linusschwarz/source/unimaps/mobile-sdk/libs-carto/mapsforgereader/CMakeFiles/edit_cache.dir
+/Users/linusschwarz/source/unimaps/mobile-sdk/libs-carto/mapsforgereader/CMakeFiles/rebuild_cache.dir

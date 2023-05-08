@@ -46,7 +46,7 @@ namespace carto {
             /**
              * A point on the map.
              */
-            typedef cglib::vec3<Type> Point;
+            typedef cglib::vec2<Type> Point;
 
             /**
              * Default container for point geometries.

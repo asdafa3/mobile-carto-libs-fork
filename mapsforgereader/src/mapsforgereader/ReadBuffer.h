@@ -39,9 +39,6 @@ namespace carto {
      */
     class ReadBuffer {
     public:
-
-        
-    
         ReadBuffer(const std::string &path_to_map_file, std::shared_ptr<mvt::Logger> logger);
         virtual ~ReadBuffer();
 

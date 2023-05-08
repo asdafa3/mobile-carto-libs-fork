@@ -1,13 +1,15 @@
 #ifndef CARTO_MOBILE_SDK_PROJECTIONUTILS_H
 #define CARTO_MOBILE_SDK_PROJECTIONUTILS_H
 
-
+#include <cglib/vec.h>
+#include <cglib/bbox.h>
 
 namespace carto {
     class AbstractProjection {
         public: 
-            typedef cglib::vec3<double> MapPos;
-            
+            typedef cglib::vec2<double> MapPos;
+            typedef cglib::bbox2<double> MapBounds;
+
             virtual ~AbstractProjection();
 
             virtual MapPos fromLatLon(double lat, double lng) const;
@@ -15,7 +17,9 @@ namespace carto {
             virtual MapPos fromWgs84(const MapPos& wgs84Pos) const = 0;
             virtual MapPos toWgs84(const MapPos& mapPos) const = 0;
         protected:
-            explicit AbstractProjection();
+            explicit AbstractProjection(const MapBounds& bounds);
+    
+            //MapBounds _bounds;
     };
 
     class EPSG3857Projection : public AbstractProjection {

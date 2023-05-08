@@ -16,8 +16,8 @@
 #include "SubFileParameters.h"
 #include "projections/EPSG3857.h"
 #include "projections/EPSG4326.h"
-#include "utils/TileUtils.h"
-#include "core/MapPos.h"
+// #include "utils/TileUtils.h"
+#include <mapsforgereader/utils/TileUtils.h>
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>
@@ -26,7 +26,7 @@
 namespace carto {
     SubFileParameters::SubFileParameters() { }
 
-    SubFileParameters::SubFileParameters(const SubFileParameterBuilder &subFileParameterBuilder) : _tileTransformer() {
+    SubFileParameters::SubFileParameters(const SubFileParameterBuilder &subFileParameterBuilder) {
         _start_address = subFileParameterBuilder._start_address;
         _index_start_address = subFileParameterBuilder._index_start_address;
         _sub_file_size = subFileParameterBuilder._sub_file_size;
@@ -42,8 +42,8 @@ namespace carto {
         MapPos projectedBottomRight = subFileParameterBuilder._bounding_box.max;
 
         // calculate tiles that span the bbox of the map extent
-        MapTile topLeftTile = TileUtils::CalculateMapTile(projectedTopLeft, _base_zoom_level, proj).getFlipped();
-        MapTile bottomRightTile = TileUtils::CalculateMapTile(projectedBottomRight, _base_zoom_level,proj).getFlipped();
+        MapTile topLeftTile = TileUtils::CalculateMapTile(projectedTopLeft, _base_zoom_level).getFlipped();
+        MapTile bottomRightTile = TileUtils::CalculateMapTile(projectedBottomRight, _base_zoom_level).getFlipped();
 
         // top and bottom are switched
         _boundary_tile_bottom = topLeftTile.y;

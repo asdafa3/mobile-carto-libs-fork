@@ -1,4 +1,6 @@
 project(mapsforgereader)
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+
 
 set(mapsforgereader_SRC_DIR "${PROJECT_SOURCE_DIR}/src/mapsforgereader")
 set(mapsforgereader_LIBS_DIR "${PROJECT_SOURCE_DIR}/../../libs-external")
@@ -21,6 +23,7 @@ else()
     "${mapsforgereader_LIBS_DIR}/cglib"
     "${mapsforgereader_LIBS_DIR}/stdext"
     "${mapsforgereader_LIBS_DIR}/tinyformat"
+    "${mapsforgereader_LIBS_DIR}/boost"
   )
   add_library(mapsforgereader OBJECT ${mapsforgereader_SRC_FILES})
 endif()

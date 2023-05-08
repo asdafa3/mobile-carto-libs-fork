@@ -17,13 +17,10 @@
 #ifndef CARTO_MOBILE_SDK_REQUIREDFIELDS_H
 #define CARTO_MOBILE_SDK_REQUIREDFIELDS_H
 
-#include <mapsforgereader/ReadBuffer.h>
 #include "MapFileInfo.h"
+#include <mapsforgereader/ReadBuffer.h>
 #include <mapsforgereader/model/Tag.h>
-// #include "utils/GeomUtils.h"
-
 #include <mapnikvt/Logger.h>
-
 #include <tinyformat.h>
 #include <string>
 
